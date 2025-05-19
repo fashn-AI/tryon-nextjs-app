@@ -112,31 +112,10 @@ These preprocessing steps help ensure optimal performance with the API while kee
 
 ## Deployment
 
-You can deploy this application to any hosting platform that supports Next.js applications. Make sure to set up your environment variables (`FASHN_API_KEY` and `FASHN_ENDPOINT_URL`) on your hosting platform.
+You can deploy this application to any hosting platform that supports Next.js applications. Make sure to set up your environment variables (`FASHN_API_KEY`) on your hosting platform.
 
-Popular deployment options include:
-- [Vercel](https://vercel.com/) (seamless Next.js deployment)
-- [Netlify](https://www.netlify.com/)
-- [AWS Amplify](https://aws.amazon.com/amplify/)
-- [DigitalOcean App Platform](https://www.digitalocean.com/products/app-platform)
+## Helpful Guides and Documentation
+To get the most out of the FASHN API, we recommend to read the following guides to better understand all node features and parameters:
 
-## Credits
-
-- [FASHN AI](https://fashn.ai) - Virtual Try-On API
-- [Next.js](https://nextjs.org/) - React Framework
-- [TailwindCSS](https://tailwindcss.com/) - CSS Framework
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [API Parameters Guide](https://docs.fashn.ai/guides/api-parameters-guide)
+- [Official API Docs](https://docs.fashn.ai/fashn-api/endpoints#request)
