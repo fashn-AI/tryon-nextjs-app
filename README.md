@@ -35,7 +35,6 @@ This is a Next.js application for the FASHN Virtual Try-On API, allowing users t
 
 3. Create a `.env.local` file in the root directory with your FASHN API key:
    ```
-   FASHN_ENDPOINT_URL=https://api.fashn.ai/v1
    FASHN_API_KEY=your-api-key-here
    ```
 
