@@ -22,7 +22,7 @@ This is a Next.js application for the FASHN Virtual Try-On API, allowing users t
 
 1. Clone the repository
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/fashn-AI/tryon-nextjs-app
    cd fashn-nextjs
    ```
 
