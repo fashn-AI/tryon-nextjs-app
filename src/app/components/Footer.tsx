@@ -39,7 +39,7 @@ export default function Footer() {
       viewport={{ once: true, margin: "-100px" }}
       variants={FADE_IN_ANIMATION_VARIANTS}
     >
-      <div className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-8 overflow-hidden">
+      <div className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4 sm:p-8 overflow-hidden">
         {/* Animated background elements */}
         <div className="absolute inset-0 overflow-hidden">
           {[...Array(10)].map((_, i) => (
@@ -68,14 +68,14 @@ export default function Footer() {
 
         <div className="relative z-10">
           <motion.div 
-            className="flex justify-center items-center mb-6"
+            className="flex justify-center items-center mb-4 sm:mb-6"
             variants={FADE_IN_ANIMATION_VARIANTS}
           >
-            <h2 className="text-2xl font-bold text-white">Additional Resources</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-white">Additional Resources</h2>
           </motion.div>
           
           <motion.div 
-            className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 max-w-4xl mx-auto"
+            className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8 max-w-4xl mx-auto"
             variants={STAGGER_ANIMATION_VARIANTS}
           >
             {resources.map((resource, index) => (
@@ -84,23 +84,23 @@ export default function Footer() {
                 href={resource.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative flex flex-col p-6 bg-gray-800/50 hover:bg-gray-800 rounded-lg backdrop-blur-sm border border-gray-700/50 transition-all duration-300"
+                className="group relative flex flex-col p-3 sm:p-6 bg-gray-800/50 hover:bg-gray-800 rounded-lg backdrop-blur-sm border border-gray-700/50 transition-all duration-300"
                 variants={FADE_IN_ANIMATION_VARIANTS}
                 whileHover={{ y: -5, transition: { duration: 0.2 } }}
                 whileTap={{ scale: 0.98 }}
               >
-                <div className="flex items-center gap-3 mb-2">
+                <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
                   <div className={cn(
-                    "flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br text-white",
+                    "flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br text-white",
                     resource.color
                   )}>
                     {resource.icon}
                   </div>
-                  <h3 className="text-xl font-semibold text-white group-hover:text-sky-300 transition-colors">
+                  <h3 className="text-lg sm:text-xl font-semibold text-white group-hover:text-sky-300 transition-colors">
                     {resource.title}
                   </h3>
                 </div>
-                <p className="text-gray-300/80 text-sm mb-2">
+                <p className="text-gray-300/80 text-xs sm:text-sm mb-2">
                   {resource.description}
                 </p>
                 <div className="mt-auto flex items-center text-sky-400 text-sm gap-1 opacity-0 group-hover:opacity-100 transition-opacity">

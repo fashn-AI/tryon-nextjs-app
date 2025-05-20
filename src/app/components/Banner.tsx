@@ -82,7 +82,7 @@ export default function Banner() {
         
         {/* Logo with animation */}
         <motion.div 
-          className="flex gap-4 items-center relative z-10"
+          className="flex flex-col sm:flex-row gap-4 items-center relative z-10"
           variants={FADE_IN_ANIMATION_VARIANTS}
         >
           <motion.div
@@ -98,7 +98,7 @@ export default function Banner() {
               unoptimized
             />
           </motion.div>
-          <div className="text-left">
+          <div className="text-center sm:text-left">
             <motion.h1 
               className="text-4xl text-white m-0 font-sans font-bold"
               initial={{ opacity: 0, y: 20 }}
@@ -120,7 +120,7 @@ export default function Banner() {
         
         {/* Description text */}
         <motion.p 
-          className="max-w-2xl m-0 leading-relaxed text-base text-white/80 relative z-10"
+          className="max-w-2xl m-0 leading-relaxed text-sm sm:text-base text-white/80 relative z-10 px-3 sm:px-0"
           variants={FADE_IN_ANIMATION_VARIANTS}
           transition={{ delay: 0.3 }}
         >
@@ -131,7 +131,7 @@ export default function Banner() {
         
         {/* Social links */}
         <motion.div 
-          className="flex justify-center items-center text-center gap-2 flex-wrap relative z-10"
+          className="flex justify-center items-center text-center gap-2 flex-wrap max-w-full px-2 relative z-10"
           variants={STAGGER_ANIMATION_VARIANTS}
           initial="hidden"
           animate="show"
@@ -143,7 +143,7 @@ export default function Banner() {
               target="_blank"
               rel="noopener noreferrer"
               className={cn(
-                "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-white transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2",
+                "flex items-center gap-1.5 rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-white transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2",
                 link.color
               )}
               variants={FADE_IN_ANIMATION_VARIANTS}
