@@ -2,7 +2,7 @@
 
 import React, { useState, ChangeEvent, FormEvent } from 'react';
 import Image from 'next/image';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Upload, Check, X, RefreshCw, Sparkles, Settings, Zap, UserRound, Shirt, Lightbulb } from 'lucide-react';
 import Banner from './components/Banner';
 import TipsModal from './components/TipsModal';
@@ -47,7 +47,6 @@ export default function Home() {
   const [segmentationFree, setSegmentationFree] = useState(true);
   const [garmentPhotoType, setGarmentPhotoType] = useState('Auto');
   const [category, setCategory] = useState('Auto');
-  const [moderationLevel, setModerationLevel] = useState('permissive');
   const [mode, setMode] = useState('Balanced');
   const [seed, setSeed] = useState<number>(42);
   const [numSamples, setNumSamples] = useState<number>(1);
@@ -224,7 +223,6 @@ export default function Home() {
         garment_photo_type: garmentPhotoType.toLowerCase(),
         category: CATEGORY_API_MAPPING[category],
         mode: mode.toLowerCase(),
-        moderation_level: moderationLevel,
         segmentation_free: segmentationFree,
         seed: seed,
         num_samples: numSamples,
@@ -310,7 +308,7 @@ export default function Home() {
                       exit={{ opacity: 0, scale: 0.9 }}
                       className="relative"
                     >
-                      <div className="aspect-[2/3] max-w-[384px] max-h-[576px] mx-auto border border-blue-200 dark:border-blue-900/50 rounded-lg shadow-sm flex items-center justify-center overflow-hidden bg-blue-50/50 dark:bg-blue-950/20">
+                      <div className="aspect-[2/3.9] max-w-[384px] max-h-[750px] mx-auto border border-blue-200 dark:border-blue-900/50 rounded-lg shadow-sm flex items-center justify-center overflow-hidden bg-blue-50/50 dark:bg-blue-950/20">
                         <Image 
                           src={modelImagePreview} 
                           alt="Model Preview" 
@@ -339,7 +337,7 @@ export default function Home() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      className="aspect-[2/3] max-w-[384px] max-h-[576px] mx-auto border border-dashed border-blue-200 dark:border-blue-900/50 rounded-lg flex flex-col items-center justify-center p-6 text-center bg-blue-50/50 dark:bg-blue-950/20"
+                      className="aspect-[2/3.9] max-w-[384px] max-h-[750px] mx-auto border border-dashed border-blue-200 dark:border-blue-900/50 rounded-lg flex flex-col items-center justify-center p-6 text-center bg-blue-50/50 dark:bg-blue-950/20"
                     >
                       <UserRound className="h-12 w-12 text-blue-300 mb-4" />
                       <p className="text-gray-500 dark:text-gray-400 text-sm">
@@ -410,7 +408,7 @@ export default function Home() {
                       exit={{ opacity: 0, scale: 0.9 }}
                       className="relative"
                     >
-                      <div className="aspect-[2/3] max-w-[384px] max-h-[576px] mx-auto border border-green-200 dark:border-green-900/50 rounded-lg shadow-sm flex items-center justify-center overflow-hidden bg-green-50/50 dark:bg-green-950/20">
+                      <div className="aspect-[2/3.9] max-w-[384px] max-h-[750px] mx-auto border border-green-200 dark:border-green-900/50 rounded-lg shadow-sm flex items-center justify-center overflow-hidden bg-green-50/50 dark:bg-green-950/20">
                         <Image 
                           src={garmentImagePreview} 
                           alt="Garment Preview" 
@@ -439,7 +437,7 @@ export default function Home() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      className="aspect-[2/3] max-w-[384px] max-h-[576px] mx-auto border border-dashed border-green-200 dark:border-green-900/50 rounded-lg flex flex-col items-center justify-center p-6 text-center bg-green-50/50 dark:bg-green-950/20"
+                      className="aspect-[2/3.9] max-w-[384px] max-h-[750px] mx-auto border border-dashed border-green-200 dark:border-green-900/50 rounded-lg flex flex-col items-center justify-center p-6 text-center bg-green-50/50 dark:bg-green-950/20"
                     >
                       <Shirt className="h-12 w-12 text-green-300 mb-4" />
                       <p className="text-gray-500 dark:text-gray-400 text-sm">
@@ -589,20 +587,6 @@ export default function Home() {
                     />
                   </div>
                   
-                  <RadioGroup
-                    label="Content Moderation"
-                    name="moderationLevel"
-                    options={[
-                      { label: "None", value: "none", description: "No content moderation" },
-                      { label: "Permissive", value: "permissive", description: "Moderate filtering of inappropriate content" },
-                      { label: "Conservative", value: "conservative", description: "Strict filtering of inappropriate content" }
-                    ]}
-                    value={moderationLevel}
-                    onChange={setModerationLevel}
-                    colorScheme="purple"
-                    layout="vertical"
-                    size="sm"
-                  />
                 </motion.div>
                 
                 <Button
