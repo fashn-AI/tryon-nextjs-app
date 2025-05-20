@@ -54,31 +54,6 @@ export default function Banner() {
       variants={FADE_IN_ANIMATION_VARIANTS}
     >
       <div className="relative flex flex-col justify-center items-center text-center p-8 gap-6 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 overflow-hidden">
-        {/* Animated background elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          {[...Array(20)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute rounded-full bg-white/5"
-              style={{
-                width: Math.random() * 40 + 10,
-                height: Math.random() * 40 + 10,
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
-              }}
-              animate={{
-                y: [0, Math.random() * -100 - 50],
-                opacity: [0, 0.4, 0],
-              }}
-              transition={{
-                duration: Math.random() * 10 + 15,
-                repeat: Infinity,
-                ease: "linear",
-                delay: Math.random() * 5,
-              }}
-            />
-          ))}
-        </div>
         
         {/* Logo with animation */}
         <motion.div 
