@@ -1,37 +1,145 @@
 import React from 'react';
+import { motion } from 'framer-motion';
+import { BookOpen, ExternalLink, Heart } from 'lucide-react';
+import { FADE_IN_ANIMATION_VARIANTS, STAGGER_ANIMATION_VARIANTS, cn } from '../lib/utils';
+
+type Resource = {
+  title: string;
+  href: string;
+  description: string;
+  icon: React.ReactNode;
+  color: string;
+};
+
+const resources: Resource[] = [
+  {
+    title: 'API Parameters Guide',
+    href: 'https://docs.fashn.ai/guides/api-parameters-guide',
+    description: 'Learn about all available parameters for the FASHN API',
+    icon: <BookOpen className="h-5 w-5" />,
+    color: 'from-blue-500 to-sky-600'
+  },
+  {
+    title: 'FASHN API Documentation',
+    href: 'https://docs.fashn.ai/',
+    description: 'Full documentation for the FASHN API',
+    icon: <ExternalLink className="h-5 w-5" />,
+    color: 'from-purple-500 to-indigo-600'
+  }
+];
 
 export default function Footer() {
+  const currentYear = new Date().getFullYear();
+
   return (
-    <div className="flex flex-col bg-gradient-to-br from-gray-900 to-gray-800 p-6 gap-4 rounded-lg items-center mt-8">
-      <div className="flex justify-center gap-2">
-        <h1 className="text-2xl text-white m-0 font-sans">
-          Additional Resources
-        </h1>
+    <motion.footer 
+      className="mt-16 rounded-lg overflow-hidden"
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, margin: "-100px" }}
+      variants={FADE_IN_ANIMATION_VARIANTS}
+    >
+      <div className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-8 overflow-hidden">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          {[...Array(10)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute rounded-full bg-white/5"
+              style={{
+                width: Math.random() * 30 + 10,
+                height: Math.random() * 30 + 10,
+                top: `${Math.random() * 100}%`,
+                left: `${Math.random() * 100}%`,
+              }}
+              animate={{
+                y: [0, Math.random() * -50 - 30],
+                opacity: [0, 0.3, 0],
+              }}
+              transition={{
+                duration: Math.random() * 8 + 10,
+                repeat: Infinity,
+                ease: "linear",
+                delay: Math.random() * 5,
+              }}
+            />
+          ))}
+        </div>
+
+        <div className="relative z-10">
+          <motion.div 
+            className="flex justify-center items-center mb-6"
+            variants={FADE_IN_ANIMATION_VARIANTS}
+          >
+            <h2 className="text-2xl font-bold text-white">Additional Resources</h2>
+          </motion.div>
+          
+          <motion.div 
+            className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 max-w-4xl mx-auto"
+            variants={STAGGER_ANIMATION_VARIANTS}
+          >
+            {resources.map((resource, index) => (
+              <motion.a
+                key={resource.title}
+                href={resource.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative flex flex-col p-6 bg-gray-800/50 hover:bg-gray-800 rounded-lg backdrop-blur-sm border border-gray-700/50 transition-all duration-300"
+                variants={FADE_IN_ANIMATION_VARIANTS}
+                whileHover={{ y: -5, transition: { duration: 0.2 } }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <div className={cn(
+                    "flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br text-white",
+                    resource.color
+                  )}>
+                    {resource.icon}
+                  </div>
+                  <h3 className="text-xl font-semibold text-white group-hover:text-sky-300 transition-colors">
+                    {resource.title}
+                  </h3>
+                </div>
+                <p className="text-gray-300/80 text-sm mb-2">
+                  {resource.description}
+                </p>
+                <div className="mt-auto flex items-center text-sky-400 text-sm gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span>Learn more</span>
+                  <ExternalLink className="h-3 w-3" />
+                </div>
+                
+                {/* Gradient border animation */}
+                <motion.div 
+                  className="absolute inset-0 rounded-lg z-[-1] opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{ 
+                    background: `linear-gradient(90deg, ${resource.color.includes('blue') ? '#3b82f6' : '#8b5cf6'} 0%, transparent 25%, transparent 75%, ${resource.color.includes('blue') ? '#3b82f6' : '#8b5cf6'} 100%)`,
+                    backgroundSize: '200% 100%',
+                    padding: '1px',
+                  }}
+                  animate={{
+                    backgroundPosition: ['0% 0%', '100% 0%'],
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    repeatType: 'reverse',
+                    ease: 'linear',
+                  }}
+                />
+              </motion.a>
+            ))}
+          </motion.div>
+          
+          <motion.div
+            className="mt-10 text-center text-gray-400 text-sm"
+            variants={FADE_IN_ANIMATION_VARIANTS}
+          >
+            <p className="flex items-center justify-center gap-1">
+              Made with <Heart className="h-4 w-4 text-red-500 animate-pulse" /> by FASHN AI | © {currentYear}
+            </p>
+          </motion.div>
+        </div>
       </div>
-      <div className="max-w-[790px] text-center">
-        <ul className="list-none p-0 m-0 leading-8 text-base text-white opacity-80">
-          <li>
-            <a 
-              href="https://docs.fashn.ai/guides/api-parameters-guide"
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-sky-300 no-underline hover:underline"
-            >
-              API Parameters Guide
-            </a>
-          </li>
-          <li>
-            <a 
-              href="https://docs.fashn.ai/"
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-sky-300 no-underline hover:underline"
-            >
-              FASHN API Documentation
-            </a>
-          </li>
-        </ul>
-      </div>
-    </div>
+    </motion.footer>
   );
-} 
+}

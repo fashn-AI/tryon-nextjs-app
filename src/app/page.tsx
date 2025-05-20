@@ -2,9 +2,19 @@
 
 import React, { useState, ChangeEvent, FormEvent } from 'react';
 import Image from 'next/image';
+import { AnimatePresence } from 'framer-motion';
+import { Upload, Check, X, RefreshCw, Sparkles, Settings, Zap, UserRound, Shirt, Lightbulb } from 'lucide-react';
 import Banner from './components/Banner';
-import Tips from './components/Tips';
+import TipsModal from './components/TipsModal';
 import Footer from './components/Footer';
+import Button from './components/ui/button';
+import Checkbox from './components/ui/checkbox';
+import { Card, CardHeader, CardTitle, CardContent } from './components/ui/card';
+import FileInput from './components/ui/file-input';
+import RadioGroup from './components/ui/radio-group';
+import Slider from './components/ui/slider';
+import { Dropdown } from './components/ui/dropdown';
+import { cn } from './lib/utils';
 
 // Map display names to API values
 const CATEGORY_API_MAPPING: { [key: string]: string } = {
@@ -46,6 +56,12 @@ export default function Home() {
   const [resultGallery, setResultGallery] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // Advanced settings toggle
+  const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
+  
+  // Tips modal state
+  const [isTipsModalOpen, setIsTipsModalOpen] = useState(false);
 
   // Handle file input changes
   const handleImageChange = (
@@ -80,6 +96,22 @@ export default function Home() {
       console.error("Failed to load example image:", err);
       setError("Failed to load example image.");
     }
+  };
+
+  // Clear all form data
+  const handleReset = () => {
+    setModelImageFile(null);
+    setModelImagePreview(null);
+    setGarmentImageFile(null);
+    setGarmentImagePreview(null);
+    setResultGallery([]);
+    setError(null);
+    setSegmentationFree(true);
+    setGarmentPhotoType('Auto');
+    setCategory('Auto');
+    setMode('Balanced');
+    setSeed(42);
+    setNumSamples(1);
   };
 
   /**
@@ -170,7 +202,6 @@ export default function Home() {
 
     setIsLoading(true);
     setError(null);
-    setResultGallery([]);
 
     try {
       // Preprocess images according to FASHN API best practices
@@ -190,9 +221,9 @@ export default function Home() {
       const payload = {
         model_image: modelImageBase64,
         garment_image: garmentImageBase64,
-        garment_photo_type: garmentPhotoType,
+        garment_photo_type: garmentPhotoType.toLowerCase(),
         category: CATEGORY_API_MAPPING[category],
-        mode: mode,
+        mode: mode.toLowerCase(),
         moderation_level: moderationLevel,
         segmentation_free: segmentationFree,
         seed: seed,
@@ -222,222 +253,462 @@ export default function Home() {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] py-6 px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-7xl mx-auto space-y-6">
-        <Banner />
-        <Tips />
 
-        <form onSubmit={handleSubmit} className="mt-8 space-y-8">
+  return (
+    <div 
+      className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-950 dark:to-gray-900 py-8 px-4 sm:px-6 lg:px-8"
+    >
+      <div className="w-full max-w-7xl mx-auto space-y-8">
+        <Banner />
+        
+        <div
+          className="p-6 border border-gray-200 dark:border-gray-700 rounded-lg my-4 bg-gradient-to-r from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 shadow-sm flex items-center justify-between"
+        >
+          <div className="flex items-center gap-2">
+            <Lightbulb className="h-5 w-5 text-yellow-500" />
+            <h2 className="text-xl font-semibold">Tips for successful try-on generations</h2>
+          </div>
+          
+          <Button 
+            variant="secondary" 
+            size="sm" 
+            onClick={() => setIsTipsModalOpen(true)}
+          >
+            View Tips
+          </Button>
+          
+          <TipsModal 
+            isOpen={isTipsModalOpen} 
+            onClose={() => setIsTipsModalOpen(false)} 
+          />
+        </div>
+
+        <form onSubmit={handleSubmit} className="mt-10 space-y-10">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Column 1: Model Image */}
-            <div className="space-y-4 p-4 bg-white dark:bg-gray-800 shadow rounded-lg">
-              <h2 className="text-xl font-semibold">Model Image</h2>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => handleImageChange(e, setModelImageFile, setModelImagePreview)}
-                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-              />
-              {modelImagePreview && (
-                <div className="max-w-[384px] max-h-[576px] mx-auto border border-gray-200 dark:border-gray-700 flex items-center justify-center aspect-[2/3] overflow-hidden">
-                  <Image 
-                    src={modelImagePreview} 
-                    alt="Model Preview" 
-                    className="max-w-full max-h-full object-contain" 
-                    width={384}
-                    height={576}
-                    unoptimized
-                  />
-                </div>
-              )}
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="segmentationFree"
+            <Card colorScheme="blue">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <UserRound className="h-5 w-5 text-blue-500" />
+                  Model Image
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <FileInput 
+                  onChange={(e) => handleImageChange(e, setModelImageFile, setModelImagePreview)}
+                  accept="image/*"
+                  colorScheme="blue"
+                  label="Upload model image"
+                />
+                
+                <AnimatePresence mode="wait">
+                  {modelImagePreview ? (
+                    <motion.div 
+                      key="preview"
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      className="relative"
+                    >
+                      <div className="aspect-[2/3] max-w-[384px] max-h-[576px] mx-auto border border-blue-200 dark:border-blue-900/50 rounded-lg shadow-sm flex items-center justify-center overflow-hidden bg-blue-50/50 dark:bg-blue-950/20">
+                        <Image 
+                          src={modelImagePreview} 
+                          alt="Model Preview" 
+                          className="max-w-full max-h-full object-contain p-2" 
+                          width={384}
+                          height={576}
+                          unoptimized
+                        />
+                      </div>
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        type="button"
+                        onClick={() => {
+                          setModelImageFile(null);
+                          setModelImagePreview(null);
+                        }}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md"
+                      >
+                        <X className="h-4 w-4" />
+                      </motion.button>
+                    </motion.div>
+                  ) : (
+                    <motion.div 
+                      key="empty"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="aspect-[2/3] max-w-[384px] max-h-[576px] mx-auto border border-dashed border-blue-200 dark:border-blue-900/50 rounded-lg flex flex-col items-center justify-center p-6 text-center bg-blue-50/50 dark:bg-blue-950/20"
+                    >
+                      <UserRound className="h-12 w-12 text-blue-300 mb-4" />
+                      <p className="text-gray-500 dark:text-gray-400 text-sm">
+                        Select a model image or use an example below
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                
+                <Checkbox
                   checked={segmentationFree}
                   onChange={(e) => setSegmentationFree(e.target.checked)}
-                  className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  label="Segmentation Free"
+                  description="Let the API handle segmentation automatically"
+                  colorScheme="blue"
                 />
-                <label htmlFor="segmentationFree" className="text-sm">Segmentation Free</label>
-              </div>
-              {modelExamples.length > 0 && (
-                <div>
-                  <h3 className="text-md font-medium mb-2">Examples:</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {modelExamples.map((src, idx) => (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => loadExampleImage(src, setModelImageFile, setModelImagePreview)}
-                        className="p-1 border rounded hover:border-blue-500"
-                      >
-                        <Image src={src} alt={`Model Example ${idx + 1}`} width={60} height={90} className="object-cover" />
-                      </button>
-                    ))}
+                
+                {modelExamples.length > 0 && (
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-medium">Examples:</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {modelExamples.map((src, idx) => (
+                        <motion.button
+                          key={idx}
+                          type="button"
+                          onClick={() => loadExampleImage(src, setModelImageFile, setModelImagePreview)}
+                          className="border border-blue-200 dark:border-blue-800 rounded-md overflow-hidden hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <Image 
+                            src={src} 
+                            alt={`Model Example ${idx + 1}`} 
+                            width={60} 
+                            height={90} 
+                            className="object-cover" 
+                          />
+                        </motion.button>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </CardContent>
+            </Card>
 
             {/* Column 2: Garment Image */}
-            <div className="space-y-4 p-4 bg-white dark:bg-gray-800 shadow rounded-lg">
-              <h2 className="text-xl font-semibold">Garment Image</h2>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => handleImageChange(e, setGarmentImageFile, setGarmentImagePreview)}
-                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
-              />
-              {garmentImagePreview && (
-                <div className="max-w-[384px] max-h-[576px] mx-auto border border-gray-200 dark:border-gray-700 flex items-center justify-center aspect-[2/3] overflow-hidden">
-                  <Image 
-                    src={garmentImagePreview} 
-                    alt="Garment Preview" 
-                    className="max-w-full max-h-full object-contain" 
-                    width={384}
-                    height={576}
-                    unoptimized
-                  />
-                </div>
-              )}
-              <div>
-                <h3 className="text-md font-medium">Photo Type:</h3>
-                {["Auto", "Flat-Lay", "Model"].map(type => (
-                  <label key={type} className="inline-flex items-center mr-4">
-                    <input 
-                      type="radio" 
-                      name="garmentPhotoType" 
-                      value={type} 
-                      checked={garmentPhotoType === type} 
-                      onChange={(e) => setGarmentPhotoType(e.target.value)} 
-                      className="form-radio h-4 w-4 text-green-600" 
-                    />
-                    <span className="ml-2 text-sm">{type}</span>
-                  </label>
-                ))}
-              </div>
-              <div>
-                <h3 className="text-md font-medium">Category:</h3>
-                {Object.keys(CATEGORY_API_MAPPING).map(cat => (
-                  <label key={cat} className="inline-flex items-center mr-4">
-                    <input 
-                      type="radio" 
-                      name="category" 
-                      value={cat} 
-                      checked={category === cat} 
-                      onChange={(e) => setCategory(e.target.value)} 
-                      className="form-radio h-4 w-4 text-green-600" 
-                    />
-                    <span className="ml-2 text-sm">{cat}</span>
-                  </label>
-                ))}
-              </div>
-              <div>
-                <h3 className="text-md font-medium">Content Moderation:</h3>
-                {["none", "permissive", "conservative"].map(level => (
-                  <label key={level} className="inline-flex items-center mr-4">
-                    <input 
-                      type="radio" 
-                      name="moderationLevel" 
-                      value={level} 
-                      checked={moderationLevel === level} 
-                      onChange={(e) => setModerationLevel(e.target.value)} 
-                      className="form-radio h-4 w-4 text-green-600" 
-                    />
-                    <span className="ml-2 text-sm capitalize">{level}</span>
-                  </label>
-                ))}
-              </div>
-              {garmentExamples.length > 0 && (
-                <div>
-                  <h3 className="text-md font-medium mb-2">Examples:</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {garmentExamples.map((src, idx) => (
-                      <button
-                        key={idx}
+            <Card colorScheme="green">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Shirt className="h-5 w-5 text-green-500" />
+                  Garment Image
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <FileInput 
+                  onChange={(e) => handleImageChange(e, setGarmentImageFile, setGarmentImagePreview)}
+                  accept="image/*"
+                  colorScheme="green"
+                  label="Upload garment image"
+                />
+                
+                <AnimatePresence mode="wait">
+                  {garmentImagePreview ? (
+                    <motion.div 
+                      key="preview"
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      className="relative"
+                    >
+                      <div className="aspect-[2/3] max-w-[384px] max-h-[576px] mx-auto border border-green-200 dark:border-green-900/50 rounded-lg shadow-sm flex items-center justify-center overflow-hidden bg-green-50/50 dark:bg-green-950/20">
+                        <Image 
+                          src={garmentImagePreview} 
+                          alt="Garment Preview" 
+                          className="max-w-full max-h-full object-contain p-2" 
+                          width={384}
+                          height={576}
+                          unoptimized
+                        />
+                      </div>
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
                         type="button"
-                        onClick={() => loadExampleImage(src, setGarmentImageFile, setGarmentImagePreview)}
-                        className="p-1 border rounded hover:border-green-500"
+                        onClick={() => {
+                          setGarmentImageFile(null);
+                          setGarmentImagePreview(null);
+                        }}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md"
                       >
-                        <Image src={src} alt={`Garment Example ${idx + 1}`} width={60} height={90} className="object-cover" />
-                      </button>
-                    ))}
+                        <X className="h-4 w-4" />
+                      </motion.button>
+                    </motion.div>
+                  ) : (
+                    <motion.div 
+                      key="empty"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="aspect-[2/3] max-w-[384px] max-h-[576px] mx-auto border border-dashed border-green-200 dark:border-green-900/50 rounded-lg flex flex-col items-center justify-center p-6 text-center bg-green-50/50 dark:bg-green-950/20"
+                    >
+                      <Shirt className="h-12 w-12 text-green-300 mb-4" />
+                      <p className="text-gray-500 dark:text-gray-400 text-sm">
+                        Select a garment image or use an example below
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                
+                <Dropdown
+                  label="Garment Settings"
+                  colorScheme="green"
+                  className="mt-2"
+                >
+                  <div className="space-y-4">
+                    <RadioGroup
+                      label="Photo Type"
+                      name="garmentPhotoType"
+                      options={[
+                        { label: "Auto", value: "Auto", description: "Let the API determine the photo type" },
+                        { label: "Flat-Lay", value: "Flat-Lay", description: "Garment photographed flat without a model" },
+                        { label: "Model", value: "Model", description: "Garment worn by a model" }
+                      ]}
+                      value={garmentPhotoType}
+                      onChange={setGarmentPhotoType}
+                      colorScheme="green"
+                      variant="card"
+                      layout="vertical"
+                    />
+                    
+                    <RadioGroup
+                      label="Category"
+                      name="category"
+                      options={[
+                        { label: "Auto", value: "Auto", description: "Automatically detect garment category" },
+                        { label: "Top", value: "Top", description: "Upper body garments like shirts, tops, etc." },
+                        { label: "Bottom", value: "Bottom", description: "Lower body garments like pants, skirts, etc." },
+                        { label: "Full-body", value: "Full-body", description: "Full-body garments like dresses, jumpsuits, etc." }
+                      ]}
+                      value={category}
+                      onChange={setCategory}
+                      colorScheme="green"
+                    />
                   </div>
-                </div>
-              )}
-            </div>
+                </Dropdown>
+                
+                {garmentExamples.length > 0 && (
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-medium">Examples:</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {garmentExamples.map((src, idx) => (
+                        <motion.button
+                          key={idx}
+                          type="button"
+                          onClick={() => loadExampleImage(src, setGarmentImageFile, setGarmentImagePreview)}
+                          className="border border-green-200 dark:border-green-800 rounded-md overflow-hidden hover:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <Image 
+                            src={src} 
+                            alt={`Garment Example ${idx + 1}`} 
+                            width={60} 
+                            height={90} 
+                            className="object-cover" 
+                          />
+                        </motion.button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
             {/* Column 3: Results and Controls */}
-            <div className="space-y-4 p-4 bg-white dark:bg-gray-800 shadow rounded-lg">
-              <h2 className="text-xl font-semibold">Try-On Results</h2>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline disabled:opacity-50 transition duration-150"
-              >
-                {isLoading ? 'Generating...' : 'Run'}
-              </button>
-              <div>
-                <h3 className="text-md font-medium">Run Mode:</h3>
-                {["Performance", "Balanced", "Quality"].map(m => (
-                  <label key={m} className="inline-flex items-center mr-4">
-                    <input 
-                      type="radio" 
-                      name="mode" 
-                      value={m} 
-                      checked={mode === m} 
-                      onChange={(e) => setMode(e.target.value)} 
-                      className="form-radio h-4 w-4 text-purple-600" 
-                    />
-                    <span className="ml-2 text-sm">{m}</span>
-                  </label>
-                ))}
-              </div>
-              <div className="flex items-center space-x-4">
-                <label htmlFor="seed" className="text-sm font-medium">Seed:</label>
-                <input
-                  type="number"
-                  id="seed"
-                  value={seed}
-                  onChange={(e) => setSeed(parseInt(e.target.value, 10))}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+            <Card colorScheme="purple">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-purple-500" />
+                  Try-On Results
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="flex gap-2">
+                  <Button
+                    type="submit"
+                    disabled={isLoading || !modelImageFile || !garmentImageFile}
+                    loading={isLoading}
+                    className="flex-1"
+                  >
+                    {isLoading ? 'Generating...' : 'Run Try-On'}
+                  </Button>
+                  
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleReset}
+                    className="px-3"
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                  </Button>
+                </div>
+                
+                <RadioGroup
+                  label="Run Mode"
+                  name="mode"
+                  options={[
+                    { label: "Performance", value: "Performance", description: "Faster generation with good quality" },
+                    { label: "Balanced", value: "Balanced", description: "Good balance between speed and quality" },
+                    { label: "Quality", value: "Quality", description: "Highest quality but slower generation" }
+                  ]}
+                  value={mode}
+                  onChange={setMode}
+                  colorScheme="purple"
+                  variant="card"
+                  layout="horizontal"
                 />
-              </div>
-              <div>
-                <label htmlFor="numSamples" className="block text-sm font-medium">
-                  Number of Samples: {numSamples}
-                </label>
-                <input
-                  type="range"
-                  id="numSamples"
-                  min="1"
-                  max="4"
-                  step="1"
-                  value={numSamples}
-                  onChange={(e) => setNumSamples(parseInt(e.target.value, 10))}
-                  className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-600"
-                />
-              </div>
-              {error && <p className="text-red-500 text-sm">{error}</p>}
-              {isLoading && <p className="text-blue-500 text-sm">Loading results, this may take a moment...</p>}
-              <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {resultGallery.map((url, index) => (
-                  <div key={index} className="max-w-[384px] max-h-[576px] mx-auto border border-gray-200 dark:border-gray-700 flex items-center justify-center aspect-[2/3] overflow-hidden">
-                    <Image 
-                      src={url} 
-                      alt={`Result ${index + 1}`} 
-                      className="max-w-full max-h-full object-contain" 
-                      width={384}
-                      height={576}
-                      unoptimized
+                
+                <motion.div
+                  animate={{ height: showAdvancedSettings ? 'auto' : '0px', opacity: showAdvancedSettings ? 1 : 0 }}
+                  className={cn(
+                    "space-y-4 overflow-hidden", 
+                    !showAdvancedSettings && "pointer-events-none"
+                  )}
+                >
+                  <Slider
+                    min={1}
+                    max={4}
+                    step={1}
+                    value={numSamples}
+                    onChange={setNumSamples}
+                    label="Number of Samples"
+                    colorScheme="purple"
+                  />
+                  
+                  <div className="relative">
+                    <label htmlFor="seed" className="block text-sm font-medium mb-1">
+                      Seed
+                    </label>
+                    <input
+                      type="number"
+                      id="seed"
+                      min={0}
+                      value={seed}
+                      onChange={(e) => setSeed(parseInt(e.target.value, 10) || 0)}
+                      className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                     />
                   </div>
-                ))}
-              </div>
-            </div>
+                  
+                  <RadioGroup
+                    label="Content Moderation"
+                    name="moderationLevel"
+                    options={[
+                      { label: "None", value: "none", description: "No content moderation" },
+                      { label: "Permissive", value: "permissive", description: "Moderate filtering of inappropriate content" },
+                      { label: "Conservative", value: "conservative", description: "Strict filtering of inappropriate content" }
+                    ]}
+                    value={moderationLevel}
+                    onChange={setModerationLevel}
+                    colorScheme="purple"
+                    layout="vertical"
+                    size="sm"
+                  />
+                </motion.div>
+                
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setShowAdvancedSettings(!showAdvancedSettings)}
+                  className="w-full text-sm flex justify-center items-center gap-1"
+                >
+                  <Settings className="h-4 w-4" />
+                  {showAdvancedSettings ? 'Hide' : 'Show'} Advanced Settings
+                </Button>
+                
+                {error && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-3 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-sm rounded-md"
+                  >
+                    <div className="flex items-start gap-2">
+                      <X className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                      <p>{error}</p>
+                    </div>
+                  </motion.div>
+                )}
+                
+                <AnimatePresence mode="wait">
+                  {isLoading ? (
+                    <motion.div 
+                      key="loading"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="flex flex-col items-center justify-center py-10 text-center space-y-4"
+                    >
+                      <div className="relative">
+                        <div className="h-16 w-16 rounded-full border-4 border-purple-100 dark:border-purple-900/30 border-t-purple-600 animate-spin" />
+                        <Sparkles className="h-6 w-6 text-purple-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+                      </div>
+                      <p className="text-gray-500 dark:text-gray-400 text-sm animate-pulse">
+                        Generating your virtual try-on...
+                      </p>
+                    </motion.div>
+                  ) : resultGallery.length > 0 ? (
+                    <motion.div 
+                      key="results"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+                    >
+                      {resultGallery.map((url, index) => (
+                        <motion.div 
+                          key={index}
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ 
+                            opacity: 1, 
+                            scale: 1,
+                            transition: { delay: index * 0.1 }
+                          }}
+                          className="relative group"
+                        >
+                          <div className="aspect-[2/3] border border-purple-200 dark:border-purple-900/50 rounded-lg shadow-sm flex items-center justify-center overflow-hidden bg-purple-50/50 dark:bg-purple-950/20">
+                            <Image 
+                              src={url} 
+                              alt={`Result ${index + 1}`} 
+                              className="max-w-full max-h-full object-contain p-2" 
+                              width={384}
+                              height={576}
+                              unoptimized
+                            />
+                          </div>
+                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <a 
+                              href={url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="bg-black/70 text-white py-2 px-4 rounded-full text-sm flex items-center gap-1"
+                              download
+                            >
+                              <Zap className="h-4 w-4" />
+                              Download
+                            </a>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </motion.div>
+                  ) : (
+                    <motion.div 
+                      key="empty"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="aspect-[2/3] max-w-[384px] mx-auto border border-dashed border-purple-200 dark:border-purple-900/50 rounded-lg flex flex-col items-center justify-center p-6 text-center bg-purple-50/50 dark:bg-purple-950/20"
+                    >
+                      <Sparkles className="h-12 w-12 text-purple-300 mb-4" />
+                      <p className="text-gray-500 dark:text-gray-400 text-sm">
+                        Your try-on results will appear here
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </CardContent>
+            </Card>
           </div>
         </form>
+        
         <Footer />
       </div>
     </div>
