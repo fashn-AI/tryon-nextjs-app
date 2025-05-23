@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState, ChangeEvent, FormEvent } from 'react';
+import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import Image from 'next/image';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X, RefreshCw, Sparkles, Settings, Zap, UserRound, Shirt, Lightbulb } from 'lucide-react';
 import Banner from './components/Banner';
 import TipsModal from './components/TipsModal';
+import ApiKeyModal from './components/ApiKeyModal';
 import Footer from './components/Footer';
 import Button from './components/ui/button';
 import Checkbox from './components/ui/checkbox';
@@ -75,6 +76,25 @@ export default function Home() {
   // Results modal state
   const [isResultsModalOpen, setIsResultsModalOpen] = useState(false);
   const [currentResultIndex, setCurrentResultIndex] = useState(0);
+
+  // API key modal state
+  const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
+  const [apiKey, setApiKey] = useState<string>('');
+
+  // Load API key from localStorage on mount
+  useEffect(() => {
+    const savedApiKey = localStorage.getItem('fashn_api_key');
+    if (savedApiKey) {
+      setApiKey(savedApiKey);
+    }
+  }, []);
+
+  // Handle saving API key
+  const handleSaveApiKey = (newApiKey: string) => {
+    setApiKey(newApiKey);
+    localStorage.setItem('fashn_api_key', newApiKey);
+    setIsApiKeyModalOpen(false);
+  };
 
   // Touch/swipe handlers for model examples
   const handleModelSwipe = (direction: 'left' | 'right') => {
@@ -260,6 +280,12 @@ export default function Home() {
       return;
     }
 
+    // Check if API key is available
+    if (!apiKey) {
+      setIsApiKeyModalOpen(true);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
@@ -287,6 +313,7 @@ export default function Home() {
         segmentation_free: segmentationFree,
         seed: seed,
         num_samples: numSamples,
+        api_key: apiKey, // Include user's API key
       };
 
       const response = await fetch('/api/tryon', {
@@ -298,6 +325,10 @@ export default function Home() {
       const data = await response.json();
 
       if (!response.ok) {
+        // Check if API key is required/invalid
+        if (data.requiresApiKey) {
+          setIsApiKeyModalOpen(true);
+        }
         throw new Error(data.error || `API request failed with status ${response.status}`);
       }
 
@@ -1025,6 +1056,13 @@ export default function Home() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* API Key Modal */}
+        <ApiKeyModal
+          isOpen={isApiKeyModalOpen}
+          onClose={() => setIsApiKeyModalOpen(false)}
+          onSave={handleSaveApiKey}
+        />
 
         <Footer />
       </div>

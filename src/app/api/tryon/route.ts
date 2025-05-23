@@ -3,18 +3,10 @@ import { NextResponse } from 'next/server';
 const FASHN_ENDPOINT_URL = process.env.FASHN_ENDPOINT_URL || "https://api.fashn.ai/v1";
 const FASHN_API_KEY = process.env.FASHN_API_KEY;
 
-if (!FASHN_API_KEY) {
-  console.error("Missing FASHN_API_KEY environment variable");
-}
-
 // Helper to delay execution
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export async function POST(request: Request) {
-  if (!FASHN_API_KEY) {
-    return NextResponse.json({ error: "Server configuration error: Missing API key." }, { status: 500 });
-  }
-
   try {
     const body = await request.json();
     const {
@@ -27,7 +19,18 @@ export async function POST(request: Request) {
       segmentation_free,
       seed,
       num_samples,
+      api_key, // User-provided API key
     } = body;
+
+    // Use environment API key if available, otherwise use user-provided key
+    const apiKey = FASHN_API_KEY || api_key;
+
+    if (!apiKey) {
+      return NextResponse.json({ 
+        error: "API key required. Please provide your FASHN API key.",
+        requiresApiKey: true 
+      }, { status: 401 });
+    }
 
     // Validate inputs
     if (!model_image || !garment_image) {
@@ -48,7 +51,7 @@ export async function POST(request: Request) {
 
     const headers = {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${FASHN_API_KEY}`,
+      "Authorization": `Bearer ${apiKey}`,
     };
 
     // 1. Make initial API request to /run
@@ -62,6 +65,15 @@ export async function POST(request: Request) {
     if (!runResponse.ok) {
       const errorData = await runResponse.json().catch(() => ({ detail: "Unknown error during run" }));
       console.error("FASHN API /run error:", errorData);
+      
+      // Check for authentication errors
+      if (runResponse.status === 401 || runResponse.status === 403) {
+        return NextResponse.json({ 
+          error: "Invalid API key. Please check your FASHN API key and try again.",
+          requiresApiKey: true 
+        }, { status: 401 });
+      }
+      
       return NextResponse.json({ error: `API run failed: ${errorData.detail || runResponse.statusText}` }, { status: runResponse.status });
     }
 
