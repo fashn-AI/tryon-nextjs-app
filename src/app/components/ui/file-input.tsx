@@ -6,7 +6,7 @@ import { cn } from '../../lib/utils';
 type FileInputProps = {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   accept?: string;
-  colorScheme?: 'blue' | 'green' | 'purple';
+  colorScheme?: 'default';
   className?: string;
   label?: string;
 };
@@ -14,7 +14,7 @@ type FileInputProps = {
 export default function FileInput({
   onChange,
   accept = 'image/*',
-  colorScheme = 'blue',
+  colorScheme = 'default',
   className,
   label = 'Upload file',
 }: FileInputProps) {
@@ -22,9 +22,7 @@ export default function FileInput({
   const [isDragging, setIsDragging] = useState(false);
   
   const colorStyles = {
-    blue: 'bg-blue-50 hover:bg-blue-100 border-blue-200 dark:bg-blue-950/20 dark:hover:bg-blue-950/30 dark:border-blue-900/50 file:bg-blue-100 file:text-blue-700 dark:file:bg-blue-800 dark:file:text-blue-100',
-    green: 'bg-green-50 hover:bg-green-100 border-green-200 dark:bg-green-950/20 dark:hover:bg-green-950/30 dark:border-green-900/50 file:bg-green-100 file:text-green-700 dark:file:bg-green-800 dark:file:text-green-100',
-    purple: 'bg-purple-50 hover:bg-purple-100 border-purple-200 dark:bg-purple-950/20 dark:hover:bg-purple-950/30 dark:border-purple-900/50 file:bg-purple-100 file:text-purple-700 dark:file:bg-purple-800 dark:file:text-purple-100',
+    default: 'bg-gray-50 hover:bg-gray-100 border-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 dark:border-gray-700 file:bg-gray-100 file:text-gray-700 dark:file:bg-gray-700 dark:file:text-gray-100',
   };
 
   const handleClick = () => {
@@ -61,7 +59,7 @@ export default function FileInput({
   return (
     <motion.div 
       className={cn(
-        "cursor-pointer relative flex items-center justify-center rounded-lg border-2 border-dashed p-6 transition-colors",
+        "cursor-pointer relative flex items-center justify-center rounded-lg border-2 border-dashed p-4 transition-colors",
         colorStyles[colorScheme],
         isDragging && "border-solid",
         className
@@ -80,10 +78,10 @@ export default function FileInput({
         onChange={onChange}
         className="sr-only"
       />
-      <div className="flex flex-col items-center gap-2 text-center">
-        <Upload className="h-10 w-10 text-gray-400" />
-        <div className="flex flex-col items-center gap-1">
-          <span className="text-sm font-medium">{label}</span>
+      <div className="flex flex-col items-center gap-1 text-center">
+        <Upload className="h-6 w-6 text-gray-400" />
+        <div className="flex flex-col items-center gap-0.5">
+          <span className="text-xs font-medium">{label}</span>
           <span className="text-xs text-gray-500">
             Drag and drop here or click to browse
           </span>

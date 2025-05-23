@@ -6,23 +6,21 @@ import { cn } from '../../lib/utils';
 export interface CheckboxProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   description?: string;
-  colorScheme?: 'blue' | 'green' | 'purple';
+  colorScheme?: 'default';
 }
 
 const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
-  ({ className, label, description, colorScheme = 'blue', ...props }, ref) => {
+  ({ className, label, description, colorScheme = 'default', ...props }, ref) => {
     const id = React.useId();
     
     const colorStyles = {
-      blue: 'border-blue-300 dark:border-blue-700 data-[checked]:bg-blue-600 data-[checked]:border-blue-600 dark:data-[checked]:bg-blue-600 dark:data-[checked]:border-blue-600 focus-visible:ring-blue-500',
-      green: 'border-green-300 dark:border-green-700 data-[checked]:bg-green-600 data-[checked]:border-green-600 dark:data-[checked]:bg-green-600 dark:data-[checked]:border-green-600 focus-visible:ring-green-500',
-      purple: 'border-purple-300 dark:border-purple-700 data-[checked]:bg-purple-600 data-[checked]:border-purple-600 dark:data-[checked]:bg-purple-600 dark:data-[checked]:border-purple-600 focus-visible:ring-purple-500',
+      default: 'border-gray-300 dark:border-gray-700 data-[checked]:bg-gray-900 data-[checked]:border-gray-900 dark:data-[checked]:bg-gray-100 dark:data-[checked]:border-gray-100 focus-visible:ring-gray-500',
     };
 
     return (
       <div className="flex items-start gap-2">
         <div className="relative flex items-center">
-          <motion.input
+          <input
             type="checkbox"
             id={props.id || id}
             ref={ref}
@@ -49,7 +47,7 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
                 transition={{ duration: 0.1 }}
                 className="flex h-full w-full items-center justify-center"
               >
-                <Check className="h-3 w-3 text-white" />
+                <Check className="h-3 w-3 text-white dark:text-gray-900" />
               </motion.div>
             )}
           </motion.div>

@@ -3,7 +3,7 @@
 import React, { useState, ChangeEvent, FormEvent } from 'react';
 import Image from 'next/image';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Upload, Check, X, RefreshCw, Sparkles, Settings, Zap, UserRound, Shirt, Lightbulb } from 'lucide-react';
+import { X, RefreshCw, Sparkles, Settings, Zap, UserRound, Shirt, Lightbulb } from 'lucide-react';
 import Banner from './components/Banner';
 import TipsModal from './components/TipsModal';
 import Footer from './components/Footer';
@@ -26,11 +26,17 @@ const CATEGORY_API_MAPPING: { [key: string]: string } = {
 
 // Sample images for examples
 const modelExamples = [
-  '/models/model-example.jpg'
+  '/models/model-example.jpg',
+  'https://app.fashn.ai/_next/static/media/studio-woman.79028a0e.png',
+  'https://app.fashn.ai/_next/static/media/street-man.c6590454.png',
+  'https://app.fashn.ai/_next/static/media/plus-woman.9235bac2.png',
+  'https://app.fashn.ai/_next/static/media/studio-man.f2eb8dfb.png'
 ];
 
 const garmentExamples = [
-  '/garments/garment-example.jpg'
+  '/garments/garment-example.jpg',
+  'https://images.pexels.com/photos/17243499/pexels-photo-17243499/free-photo-of-a-woman-leaning-against-a-wall-wearing-a-crop-top.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+  'https://images.pexels.com/photos/17245487/pexels-photo-17245487/free-photo-of-a-young-man-holding-a-skateboard-in-his-hand.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'
 ];
 
 const MAX_IMAGE_HEIGHT = 2000;
@@ -62,6 +68,32 @@ export default function Home() {
   // Tips modal state
   const [isTipsModalOpen, setIsTipsModalOpen] = useState(false);
 
+  // Example carousel states
+  const [modelExampleIndex, setModelExampleIndex] = useState(0);
+  const [garmentExampleIndex, setGarmentExampleIndex] = useState(0);
+
+  // Results modal state
+  const [isResultsModalOpen, setIsResultsModalOpen] = useState(false);
+  const [currentResultIndex, setCurrentResultIndex] = useState(0);
+
+  // Touch/swipe handlers for model examples
+  const handleModelSwipe = (direction: 'left' | 'right') => {
+    if (direction === 'left' && modelExampleIndex > 0) {
+      setModelExampleIndex(modelExampleIndex - 1);
+    } else if (direction === 'right' && modelExampleIndex < modelExamples.length - 1) {
+      setModelExampleIndex(modelExampleIndex + 1);
+    }
+  };
+
+  // Touch/swipe handlers for garment examples
+  const handleGarmentSwipe = (direction: 'left' | 'right') => {
+    if (direction === 'left' && garmentExampleIndex > 0) {
+      setGarmentExampleIndex(garmentExampleIndex - 1);
+    } else if (direction === 'right' && garmentExampleIndex < garmentExamples.length - 1) {
+      setGarmentExampleIndex(garmentExampleIndex + 1);
+    }
+  };
+
   // Handle file input changes
   const handleImageChange = (
     e: ChangeEvent<HTMLInputElement>,
@@ -72,9 +104,31 @@ export default function Home() {
       const file = e.target.files[0];
       setImageFile(file);
       setPreview(URL.createObjectURL(file));
+      
+      // Clear error if both images will be selected after this change
+      if (setImageFile === setModelImageFile && garmentImageFile) {
+        setError(null);
+      } else if (setImageFile === setGarmentImageFile && modelImageFile) {
+        setError(null);
+      }
     } else {
       setImageFile(null);
       setPreview(null);
+    }
+  };
+
+  // Handle opening results modal
+  const openResultsModal = (index: number) => {
+    setCurrentResultIndex(index);
+    setIsResultsModalOpen(true);
+  };
+
+  // Handle navigating results in modal
+  const navigateResult = (direction: 'prev' | 'next') => {
+    if (direction === 'prev' && currentResultIndex > 0) {
+      setCurrentResultIndex(currentResultIndex - 1);
+    } else if (direction === 'next' && currentResultIndex < resultGallery.length - 1) {
+      setCurrentResultIndex(currentResultIndex + 1);
     }
   };
 
@@ -91,6 +145,13 @@ export default function Home() {
       const file = new File([blob], filename, { type: blob.type });
       setImageFile(file);
       setPreview(URL.createObjectURL(file));
+      
+      // Clear error if both images will be selected after this change
+      if (setImageFile === setModelImageFile && garmentImageFile) {
+        setError(null);
+      } else if (setImageFile === setGarmentImageFile && modelImageFile) {
+        setError(null);
+      }
     } catch (err) {
       console.error("Failed to load example image:", err);
       setError("Failed to load example image.");
@@ -259,11 +320,14 @@ export default function Home() {
       <div className="w-full max-w-7xl mx-auto space-y-8">
         <Banner />
         
-        <div
-          className="p-6 border border-gray-200 dark:border-gray-700 rounded-lg my-4 bg-gradient-to-r from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 shadow-sm flex items-center justify-between"
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2, delay: 0.1 }}
+          className="p-6 border border-gray-200 dark:border-gray-700 rounded-lg my-4 bg-gray-50 dark:bg-gray-800 shadow-sm flex items-center justify-between"
         >
           <div className="flex items-center gap-2">
-            <Lightbulb className="h-5 w-5 text-yellow-500" />
+            <Lightbulb className="h-5 w-5 text-gray-600" />
             <h2 className="text-xl font-semibold">Tips for successful try-on generations</h2>
           </div>
           
@@ -279,23 +343,28 @@ export default function Home() {
             isOpen={isTipsModalOpen} 
             onClose={() => setIsTipsModalOpen(false)} 
           />
-        </div>
+        </motion.div>
 
-        <form onSubmit={handleSubmit} className="mt-10 space-y-10">
+        <motion.form 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2, delay: 0.2 }}
+          onSubmit={handleSubmit} 
+          className="mt-10 space-y-10"
+        >
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Column 1: Model Image */}
-            <Card colorScheme="blue">
+            <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <UserRound className="h-5 w-5 text-blue-500" />
+                  <UserRound className="h-5 w-5 text-gray-600" />
                   Model Image
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-4">
                 <FileInput 
                   onChange={(e) => handleImageChange(e, setModelImageFile, setModelImagePreview)}
                   accept="image/*"
-                  colorScheme="blue"
                   label="Upload model image"
                 />
                 
@@ -306,15 +375,16 @@ export default function Home() {
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.9 }}
+                      transition={{ duration: 0.2 }}
                       className="relative"
                     >
-                      <div className="aspect-[2/3.9] max-w-[384px] max-h-[750px] mx-auto border border-blue-200 dark:border-blue-900/50 rounded-lg shadow-sm flex items-center justify-center overflow-hidden bg-blue-50/50 dark:bg-blue-950/20">
+                      <div className="aspect-[2/2.5] max-w-[280px] max-h-[350px] mx-auto border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-gray-800">
                         <Image 
                           src={modelImagePreview} 
                           alt="Model Preview" 
                           className="max-w-full max-h-full object-contain p-2" 
-                          width={384}
-                          height={576}
+                          width={280}
+                          height={350}
                           unoptimized
                         />
                       </div>
@@ -326,7 +396,7 @@ export default function Home() {
                           setModelImageFile(null);
                           setModelImagePreview(null);
                         }}
-                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md"
+                        className="absolute -top-2 -right-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-full p-1 shadow-md"
                       >
                         <X className="h-4 w-4" />
                       </motion.button>
@@ -337,12 +407,110 @@ export default function Home() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      className="aspect-[2/3.9] max-w-[384px] max-h-[750px] mx-auto border border-dashed border-blue-200 dark:border-blue-900/50 rounded-lg flex flex-col items-center justify-center p-6 text-center bg-blue-50/50 dark:bg-blue-950/20"
+                      transition={{ duration: 0.2 }}
+                      className="aspect-[2/2.5] max-w-[280px] max-h-[350px] mx-auto border border-dashed border-gray-200 dark:border-gray-700 rounded-lg relative overflow-hidden bg-gray-50 dark:bg-gray-800"
                     >
-                      <UserRound className="h-12 w-12 text-blue-300 mb-4" />
-                      <p className="text-gray-500 dark:text-gray-400 text-sm">
-                        Select a model image or use an example below
-                      </p>
+                      {/* Top overlay with text */}
+                      <div className="absolute top-3 left-3 right-3 z-10">
+                        <div className="inline-flex items-center gap-2 bg-black/70 backdrop-blur-sm text-white px-3 py-2 rounded-full">
+                          <UserRound className="h-4 w-4" />
+                          <p className="text-xs font-medium">Select a model image</p>
+                        </div>
+                      </div>
+                      
+                      {/* Main example content taking most space */}
+                      {modelExamples.length > 0 ? (
+                        <div className="w-full h-full relative">
+                          <motion.button
+                            key={modelExampleIndex}
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            drag="x"
+                            dragConstraints={{ left: 0, right: 0 }}
+                            dragElastic={0.2}
+                            onDragEnd={(e, info) => {
+                              if (info.offset.x > 50) {
+                                handleModelSwipe('left');
+                              } else if (info.offset.x < -50) {
+                                handleModelSwipe('right');
+                              }
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              loadExampleImage(modelExamples[modelExampleIndex], setModelImageFile, setModelImagePreview);
+                            }}
+                            className="w-full h-full cursor-pointer group"
+                          >
+                            <Image 
+                              src={modelExamples[modelExampleIndex]} 
+                              alt={`Model Example ${modelExampleIndex + 1}`} 
+                              width={280} 
+                              height={350} 
+                              className="w-full h-full object-cover pointer-events-none transform scale-70" 
+                            />
+                            
+                            {/* Swipe hint overlay */}
+                            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                              <div className="bg-black/80 text-white px-4 py-2 rounded-full text-xs font-semibold shadow-lg backdrop-blur-sm">
+                                Tap to use • Swipe to browse
+                              </div>
+                            </div>
+                          </motion.button>
+                          
+                          {/* Navigation controls at bottom */}
+                          <div className="absolute bottom-3 left-0 right-0 flex items-center justify-between px-4">
+                            <motion.button
+                              whileTap={{ scale: 0.9 }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleModelSwipe('left');
+                              }}
+                              disabled={modelExampleIndex === 0}
+                              className="w-8 h-8 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 flex items-center justify-center disabled:opacity-30 text-white"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                              </svg>
+                            </motion.button>
+                            
+                            {/* Dots indicator */}
+                            <div className="flex gap-1.5">
+                              {modelExamples.map((_, idx) => (
+                                <motion.div 
+                                  key={idx} 
+                                  className={`w-2 h-2 rounded-full transition-all ${
+                                    idx === modelExampleIndex ? 'bg-white scale-125' : 'bg-white/50'
+                                  }`}
+                                  whileHover={{ scale: 1.2 }}
+                                />
+                              ))}
+                            </div>
+                            
+                            <motion.button
+                              whileTap={{ scale: 0.9 }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleModelSwipe('right');
+                              }}
+                              disabled={modelExampleIndex === modelExamples.length - 1}
+                              className="w-8 h-8 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 flex items-center justify-center disabled:opacity-30 text-white"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                              </svg>
+                            </motion.button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center">
+                          <UserRound className="h-12 w-12 text-gray-400 mb-3" />
+                          <p className="text-gray-500 dark:text-gray-400 text-sm">
+                            No examples available
+                          </p>
+                        </div>
+                      )}
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -352,50 +520,22 @@ export default function Home() {
                   onChange={(e) => setSegmentationFree(e.target.checked)}
                   label="Segmentation Free"
                   description="Let the API handle segmentation automatically"
-                  colorScheme="blue"
                 />
-                
-                {modelExamples.length > 0 && (
-                  <div className="space-y-2">
-                    <h3 className="text-sm font-medium">Examples:</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {modelExamples.map((src, idx) => (
-                        <motion.button
-                          key={idx}
-                          type="button"
-                          onClick={() => loadExampleImage(src, setModelImageFile, setModelImagePreview)}
-                          className="border border-blue-200 dark:border-blue-800 rounded-md overflow-hidden hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.98 }}
-                        >
-                          <Image 
-                            src={src} 
-                            alt={`Model Example ${idx + 1}`} 
-                            width={60} 
-                            height={90} 
-                            className="object-cover" 
-                          />
-                        </motion.button>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </CardContent>
             </Card>
 
             {/* Column 2: Garment Image */}
-            <Card colorScheme="green">
+            <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Shirt className="h-5 w-5 text-green-500" />
+                  <Shirt className="h-5 w-5 text-gray-600" />
                   Garment Image
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-4">
                 <FileInput 
                   onChange={(e) => handleImageChange(e, setGarmentImageFile, setGarmentImagePreview)}
                   accept="image/*"
-                  colorScheme="green"
                   label="Upload garment image"
                 />
                 
@@ -406,15 +546,16 @@ export default function Home() {
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.9 }}
+                      transition={{ duration: 0.2 }}
                       className="relative"
                     >
-                      <div className="aspect-[2/3.9] max-w-[384px] max-h-[750px] mx-auto border border-green-200 dark:border-green-900/50 rounded-lg shadow-sm flex items-center justify-center overflow-hidden bg-green-50/50 dark:bg-green-950/20">
+                      <div className="aspect-[2/2.5] max-w-[280px] max-h-[350px] mx-auto border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-gray-800">
                         <Image 
                           src={garmentImagePreview} 
                           alt="Garment Preview" 
                           className="max-w-full max-h-full object-contain p-2" 
-                          width={384}
-                          height={576}
+                          width={280}
+                          height={350}
                           unoptimized
                         />
                       </div>
@@ -426,7 +567,7 @@ export default function Home() {
                           setGarmentImageFile(null);
                           setGarmentImagePreview(null);
                         }}
-                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md"
+                        className="absolute -top-2 -right-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-full p-1 shadow-md"
                       >
                         <X className="h-4 w-4" />
                       </motion.button>
@@ -437,19 +578,116 @@ export default function Home() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      className="aspect-[2/3.9] max-w-[384px] max-h-[750px] mx-auto border border-dashed border-green-200 dark:border-green-900/50 rounded-lg flex flex-col items-center justify-center p-6 text-center bg-green-50/50 dark:bg-green-950/20"
+                      transition={{ duration: 0.2 }}
+                      className="aspect-[2/2.5] max-w-[280px] max-h-[350px] mx-auto border border-dashed border-gray-200 dark:border-gray-700 rounded-lg relative overflow-hidden bg-gray-50 dark:bg-gray-800"
                     >
-                      <Shirt className="h-12 w-12 text-green-300 mb-4" />
-                      <p className="text-gray-500 dark:text-gray-400 text-sm">
-                        Select a garment image or use an example below
-                      </p>
+                      {/* Top overlay with text */}
+                      <div className="absolute top-3 left-3 right-3 z-10">
+                        <div className="inline-flex items-center gap-2 bg-black/70 backdrop-blur-sm text-white px-3 py-2 rounded-full">
+                          <Shirt className="h-4 w-4" />
+                          <p className="text-xs font-medium">Select a garment image</p>
+                        </div>
+                      </div>
+                      
+                      {/* Main example content taking most space */}
+                      {garmentExamples.length > 0 ? (
+                        <div className="w-full h-full relative">
+                          <motion.button
+                            key={garmentExampleIndex}
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            drag="x"
+                            dragConstraints={{ left: 0, right: 0 }}
+                            dragElastic={0.2}
+                            onDragEnd={(e, info) => {
+                              if (info.offset.x > 50) {
+                                handleGarmentSwipe('left');
+                              } else if (info.offset.x < -50) {
+                                handleGarmentSwipe('right');
+                              }
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              loadExampleImage(garmentExamples[garmentExampleIndex], setGarmentImageFile, setGarmentImagePreview);
+                            }}
+                            className="w-full h-full cursor-pointer group"
+                          >
+                            <Image 
+                              src={garmentExamples[garmentExampleIndex]} 
+                              alt={`Garment Example ${garmentExampleIndex + 1}`} 
+                              width={280} 
+                              height={350} 
+                              className="w-full h-full object-cover pointer-events-none transform scale-70" 
+                            />
+                            
+                            {/* Swipe hint overlay */}
+                            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                              <div className="bg-black/80 text-white px-4 py-2 rounded-full text-xs font-semibold shadow-lg backdrop-blur-sm">
+                                Tap to use • Swipe to browse
+                              </div>
+                            </div>
+                          </motion.button>
+                          
+                          {/* Navigation controls at bottom */}
+                          <div className="absolute bottom-3 left-0 right-0 flex items-center justify-between px-4">
+                            <motion.button
+                              whileTap={{ scale: 0.9 }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleGarmentSwipe('left');
+                              }}
+                              disabled={garmentExampleIndex === 0}
+                              className="w-8 h-8 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 flex items-center justify-center disabled:opacity-30 text-white"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                              </svg>
+                            </motion.button>
+                            
+                            {/* Dots indicator */}
+                            <div className="flex gap-1.5">
+                              {garmentExamples.map((_, idx) => (
+                                <motion.div 
+                                  key={idx} 
+                                  className={`w-2 h-2 rounded-full transition-all ${
+                                    idx === garmentExampleIndex ? 'bg-white scale-125' : 'bg-white/50'
+                                  }`}
+                                  whileHover={{ scale: 1.2 }}
+                                />
+                              ))}
+                            </div>
+                            
+                            <motion.button
+                              whileTap={{ scale: 0.9 }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleGarmentSwipe('right');
+                              }}
+                              disabled={garmentExampleIndex === garmentExamples.length - 1}
+                              className="w-8 h-8 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 flex items-center justify-center disabled:opacity-30 text-white"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                              </svg>
+                            </motion.button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center">
+                          <Shirt className="h-12 w-12 text-gray-400 mb-3" />
+                          <p className="text-gray-500 dark:text-gray-400 text-sm">
+                            No examples available
+                          </p>
+                        </div>
+                      )}
                     </motion.div>
                   )}
                 </AnimatePresence>
                 
                 <Dropdown
                   label="Garment Settings"
-                  colorScheme="green"
                   className="mt-2"
                 >
                   <div className="space-y-4">
@@ -463,7 +701,6 @@ export default function Home() {
                       ]}
                       value={garmentPhotoType}
                       onChange={setGarmentPhotoType}
-                      colorScheme="green"
                       variant="card"
                       layout="vertical"
                     />
@@ -479,45 +716,18 @@ export default function Home() {
                       ]}
                       value={category}
                       onChange={setCategory}
-                      colorScheme="green"
                     />
                   </div>
                 </Dropdown>
-                
-                {garmentExamples.length > 0 && (
-                  <div className="space-y-2">
-                    <h3 className="text-sm font-medium">Examples:</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {garmentExamples.map((src, idx) => (
-                        <motion.button
-                          key={idx}
-                          type="button"
-                          onClick={() => loadExampleImage(src, setGarmentImageFile, setGarmentImagePreview)}
-                          className="border border-green-200 dark:border-green-800 rounded-md overflow-hidden hover:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500"
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.98 }}
-                        >
-                          <Image 
-                            src={src} 
-                            alt={`Garment Example ${idx + 1}`} 
-                            width={60} 
-                            height={90} 
-                            className="object-cover" 
-                          />
-                        </motion.button>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </CardContent>
             </Card>
 
-            {/* Column 3: Results and Controls */}
-            <Card colorScheme="purple">
+            {/* Column 3: Controls */}
+            <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-purple-500" />
-                  Try-On Results
+                  <Settings className="h-5 w-5 text-gray-600" />
+                  Controls
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -551,7 +761,6 @@ export default function Home() {
                   ]}
                   value={mode}
                   onChange={setMode}
-                  colorScheme="purple"
                   variant="card"
                   layout="horizontal"
                 />
@@ -559,7 +768,7 @@ export default function Home() {
                 <motion.div
                   animate={{ height: showAdvancedSettings ? 'auto' : '0px', opacity: showAdvancedSettings ? 1 : 0 }}
                   className={cn(
-                    "space-y-4 overflow-hidden", 
+                    "space-y-4 overflow-hidden px-2", 
                     !showAdvancedSettings && "pointer-events-none"
                   )}
                 >
@@ -570,7 +779,6 @@ export default function Home() {
                     value={numSamples}
                     onChange={setNumSamples}
                     label="Number of Samples"
-                    colorScheme="purple"
                   />
                   
                   <div className="relative">
@@ -583,7 +791,7 @@ export default function Home() {
                       min={0}
                       value={seed}
                       onChange={(e) => setSeed(parseInt(e.target.value, 10) || 0)}
-                      className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                      className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
                     />
                   </div>
                   
@@ -603,7 +811,8 @@ export default function Home() {
                   <motion.div 
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="p-3 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-sm rounded-md"
+                    transition={{ duration: 0.2 }}
+                    className="p-3 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm rounded-md border border-gray-300 dark:border-gray-600"
                   >
                     <div className="flex items-start gap-2">
                       <X className="h-5 w-5 flex-shrink-0 mt-0.5" />
@@ -611,88 +820,212 @@ export default function Home() {
                     </div>
                   </motion.div>
                 )}
-                
-                <AnimatePresence mode="wait">
-                  {isLoading ? (
-                    <motion.div 
-                      key="loading"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="flex flex-col items-center justify-center py-10 text-center space-y-4"
-                    >
-                      <div className="relative">
-                        <div className="h-16 w-16 rounded-full border-4 border-purple-100 dark:border-purple-900/30 border-t-purple-600 animate-spin" />
-                        <Sparkles className="h-6 w-6 text-purple-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
-                      </div>
-                      <p className="text-gray-500 dark:text-gray-400 text-sm animate-pulse">
-                        Generating your virtual try-on...
-                      </p>
-                    </motion.div>
-                  ) : resultGallery.length > 0 ? (
-                    <motion.div 
-                      key="results"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="grid grid-cols-1 sm:grid-cols-2 gap-4"
-                    >
-                      {resultGallery.map((url, index) => (
-                        <motion.div 
-                          key={index}
-                          initial={{ opacity: 0, scale: 0.9 }}
-                          animate={{ 
-                            opacity: 1, 
-                            scale: 1,
-                            transition: { delay: index * 0.1 }
-                          }}
-                          className="relative group"
-                        >
-                          <div className="aspect-[2/3] border border-purple-200 dark:border-purple-900/50 rounded-lg shadow-sm flex items-center justify-center overflow-hidden bg-purple-50/50 dark:bg-purple-950/20">
-                            <Image 
-                              src={url} 
-                              alt={`Result ${index + 1}`} 
-                              className="max-w-full max-h-full object-contain p-2" 
-                              width={384}
-                              height={576}
-                              unoptimized
-                            />
-                          </div>
-                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <a 
-                              href={url} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="bg-black/70 text-white py-2 px-4 rounded-full text-sm flex items-center gap-1"
-                              download
-                            >
-                              <Zap className="h-4 w-4" />
-                              Download
-                            </a>
-                          </div>
-                        </motion.div>
-                      ))}
-                    </motion.div>
-                  ) : (
-                    <motion.div 
-                      key="empty"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="aspect-[2/3] max-w-[384px] mx-auto border border-dashed border-purple-200 dark:border-purple-900/50 rounded-lg flex flex-col items-center justify-center p-6 text-center bg-purple-50/50 dark:bg-purple-950/20"
-                    >
-                      <Sparkles className="h-12 w-12 text-purple-300 mb-4" />
-                      <p className="text-gray-500 dark:text-gray-400 text-sm">
-                        Your try-on results will appear here
-                      </p>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
               </CardContent>
             </Card>
           </div>
-        </form>
-        
+        </motion.form>
+
+        {/* Try-On Results Section */}
+        <AnimatePresence mode="wait">
+          {(isLoading || resultGallery.length > 0) && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.2 }}
+              className="mt-8"
+            >
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-gray-600" />
+                    Try-On Results
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <AnimatePresence mode="wait">
+                    {isLoading ? (
+                      <motion.div 
+                        key="loading"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="flex flex-col items-center justify-center py-12 text-center space-y-4"
+                      >
+                        <div className="relative">
+                          <div className="h-16 w-16 rounded-full border-4 border-gray-200 dark:border-gray-700 border-t-gray-900 dark:border-t-gray-100 animate-spin" />
+                          <Sparkles className="h-6 w-6 text-gray-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+                        </div>
+                        <p className="text-gray-500 dark:text-gray-400 text-sm animate-pulse">
+                          Generating your virtual try-on...
+                        </p>
+                      </motion.div>
+                    ) : (
+                      <motion.div 
+                        key="results"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+                      >
+                        {resultGallery.map((url, index) => (
+                          <motion.div 
+                            key={index}
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ 
+                              opacity: 1, 
+                              scale: 1,
+                              transition: { delay: index * 0.05, duration: 0.2 }
+                            }}
+                            className="relative group cursor-pointer"
+                            onClick={() => openResultsModal(index)}
+                          >
+                            <div className="aspect-[2/3] border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-gray-800">
+                              <Image 
+                                src={url} 
+                                alt={`Result ${index + 1}`} 
+                                className="max-w-full max-h-full object-contain p-2" 
+                                width={300}
+                                height={400}
+                                unoptimized
+                              />
+                            </div>
+                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                              <div className="bg-black/70 text-white py-2 px-4 rounded-full text-sm flex items-center gap-2">
+                                <Zap className="h-4 w-4" />
+                                Click to view full size
+                              </div>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Full-screen Results Modal */}
+        <AnimatePresence>
+          {isResultsModalOpen && resultGallery.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="fixed inset-0 bg-black/95 backdrop-blur-sm z-50 flex items-center justify-center"
+              onClick={() => setIsResultsModalOpen(false)}
+            >
+              <div className="relative w-full h-full flex items-center justify-center p-4">
+                {/* Close button */}
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setIsResultsModalOpen(false)}
+                  className="absolute top-4 right-4 z-10 bg-black/70 hover:bg-black/90 text-white rounded-full p-3 backdrop-blur-sm transition-colors"
+                >
+                  <X className="h-6 w-6" />
+                </motion.button>
+
+                {/* Image counter */}
+                <div className="absolute top-4 left-4 z-10 bg-black/70 text-white px-4 py-2 rounded-full text-sm backdrop-blur-sm">
+                  {currentResultIndex + 1} of {resultGallery.length}
+                </div>
+
+                {/* Previous button */}
+                {currentResultIndex > 0 && (
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigateResult('prev');
+                    }}
+                    className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 bg-black/70 hover:bg-black/90 text-white rounded-full p-3 backdrop-blur-sm transition-colors"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </motion.button>
+                )}
+
+                {/* Next button */}
+                {currentResultIndex < resultGallery.length - 1 && (
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigateResult('next');
+                    }}
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 bg-black/70 hover:bg-black/90 text-white rounded-full p-3 backdrop-blur-sm transition-colors"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </motion.button>
+                )}
+
+                {/* Main image */}
+                <motion.div
+                  key={currentResultIndex}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.15, ease: "easeOut" }}
+                  className="max-w-full max-h-full flex items-center justify-center"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Image
+                    src={resultGallery[currentResultIndex]}
+                    alt={`Result ${currentResultIndex + 1}`}
+                    className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+                    width={800}
+                    height={1000}
+                    unoptimized
+                  />
+                </motion.div>
+
+                {/* Download button */}
+                <motion.a
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  href={resultGallery[currentResultIndex]}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  download
+                  className="absolute bottom-4 right-4 z-10 bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-full text-sm flex items-center gap-2 backdrop-blur-sm transition-colors"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Zap className="h-4 w-4" />
+                  Download
+                </motion.a>
+
+                {/* Dots indicator for multiple results */}
+                {resultGallery.length > 1 && (
+                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10 flex gap-2">
+                    {resultGallery.map((_, idx) => (
+                      <motion.button
+                        key={idx}
+                        whileHover={{ scale: 1.2 }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCurrentResultIndex(idx);
+                        }}
+                        className={`w-2 h-2 rounded-full transition-all ${
+                          idx === currentResultIndex ? 'bg-white scale-125' : 'bg-white/50'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <Footer />
       </div>
     </div>

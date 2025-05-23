@@ -1,111 +1,112 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '../../lib/utils';
 
-type SliderProps = {
+export interface SliderProps {
   min: number;
   max: number;
-  step?: number;
+  step: number;
   value: number;
   onChange: (value: number) => void;
-  colorScheme?: 'blue' | 'green' | 'purple';
-  className?: string;
   label?: string;
-  showValue?: boolean;
-};
+  colorScheme?: 'default';
+  className?: string;
+}
 
 export default function Slider({
   min,
   max,
-  step = 1,
+  step,
   value,
   onChange,
-  colorScheme = 'purple',
-  className,
   label,
-  showValue = true,
+  colorScheme = 'default',
+  className,
 }: SliderProps) {
   const [isDragging, setIsDragging] = useState(false);
-  const trackRef = useRef<HTMLDivElement>(null);
+  const sliderRef = useRef<HTMLDivElement>(null);
 
   const colorStyles = {
-    blue: 'bg-blue-600',
-    green: 'bg-green-600',
-    purple: 'bg-purple-600',
+    default: 'bg-gray-900 dark:bg-gray-100',
   };
 
   const thumbShadow = {
-    blue: 'shadow-[0_0_0_6px_rgba(37,99,235,0.1)]',
-    green: 'shadow-[0_0_0_6px_rgba(22,163,74,0.1)]',
-    purple: 'shadow-[0_0_0_6px_rgba(147,51,234,0.1)]',
+    default: 'shadow-lg shadow-gray-900/25 dark:shadow-gray-100/25',
   };
 
-  const calculatePercentage = () => {
-    return ((value - min) / (max - min)) * 100;
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange(Number(e.target.value));
-  };
-
-  const handleTrackClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!trackRef.current) return;
+  const calculateValue = useCallback((clientX: number) => {
+    if (!sliderRef.current) return value;
     
-    const rect = trackRef.current.getBoundingClientRect();
-    const percentage = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    const newValue = Math.round((percentage * (max - min) + min) / step) * step;
+    const rect = sliderRef.current.getBoundingClientRect();
+    const percentage = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    const newValue = min + percentage * (max - min);
+    const steppedValue = Math.round(newValue / step) * step;
     
+    return Math.max(min, Math.min(max, steppedValue));
+  }, [min, max, step, value]);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    setIsDragging(true);
+    const newValue = calculateValue(e.clientX);
     onChange(newValue);
-  };
+  }, [calculateValue, onChange]);
+
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (!isDragging) return;
+    const newValue = calculateValue(e.clientX);
+    onChange(newValue);
+  }, [isDragging, calculateValue, onChange]);
+
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  React.useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isDragging, handleMouseMove, handleMouseUp]);
+
+  const percentage = ((value - min) / (max - min)) * 100;
 
   return (
     <div className={cn('space-y-2', className)}>
-      <div className="flex items-center justify-between">
-        {label && (
+      {label && (
+        <div className="flex justify-between">
           <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
             {label}
           </label>
-        )}
-        {showValue && (
-          <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+          <span className="text-sm text-gray-500 dark:text-gray-400">
             {value}
           </span>
-        )}
-      </div>
-      <div className="relative py-2" onClick={handleTrackClick} ref={trackRef}>
-        <div
-          className="absolute inset-y-0 left-0 my-auto h-1.5 rounded-full bg-gray-200 dark:bg-gray-700"
-          style={{ width: '100%' }}
-        ></div>
-        <div
-          className={cn('absolute inset-y-0 left-0 my-auto h-1.5 rounded-full', colorStyles[colorScheme])}
-          style={{ width: `${calculatePercentage()}%` }}
-        ></div>
+        </div>
+      )}
+      <div
+        ref={sliderRef}
+        className="relative h-6 cursor-pointer flex items-center"
+        onMouseDown={handleMouseDown}
+      >
+        <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full">
+          <div
+            className={cn('absolute inset-y-0 left-0 my-auto h-1.5 rounded-full', colorStyles[colorScheme])}
+            style={{ width: `${percentage}%` }}
+          />
+        </div>
         <motion.div
           className={cn(
-            'absolute top-1/2 -translate-y-1/2 h-5 w-5 rounded-full bg-white border border-gray-200 dark:border-gray-600 cursor-grab',
-            isDragging && 'cursor-grabbing',
+            'absolute w-4 h-4 bg-white border-2 border-gray-900 dark:border-gray-100 rounded-full cursor-grab',
+            isDragging && 'cursor-grabbing scale-110',
             isDragging && thumbShadow[colorScheme]
           )}
-          style={{ left: `calc(${calculatePercentage()}% - 10px)` }}
-          whileTap={{ scale: 1.2 }}
+          style={{ left: `calc(${percentage}% - 8px)` }}
           whileHover={{ scale: 1.1 }}
-          onTapStart={() => setIsDragging(true)}
-          onTapEnd={() => setIsDragging(false)}
-        ></motion.div>
-        <input
-          type="range"
-          min={min}
-          max={max}
-          step={step}
-          value={value}
-          onChange={handleChange}
-          className="absolute inset-0 opacity-0 cursor-pointer w-full"
+          whileTap={{ scale: 1.2 }}
         />
-      </div>
-      <div className="flex justify-between text-xs text-gray-500">
-        <span>{min}</span>
-        <span>{max}</span>
       </div>
     </div>
   );

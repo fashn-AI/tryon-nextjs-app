@@ -6,15 +6,13 @@ import { FADE_IN_ANIMATION_CARD_VARIANTS } from '../../lib/utils';
 interface CardProps {
   children: React.ReactNode;
   className?: string;
-  colorScheme?: 'blue' | 'green' | 'purple' | 'default';
+  colorScheme?: 'default' | 'muted';
 }
 
 export function Card({ children, className, colorScheme = 'default' }: CardProps) {
   const colorStyles = {
-    default: 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700',
-    blue: 'bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-900/50',
-    green: 'bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-900/50',
-    purple: 'bg-purple-50 dark:bg-purple-950/30 border-purple-200 dark:border-purple-900/50',
+    default: 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700',
+    muted: 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700',
   };
 
   return (
@@ -40,7 +38,7 @@ interface CardHeaderProps {
 
 export function CardHeader({ children, className }: CardHeaderProps) {
   return (
-    <div className={cn('flex flex-col space-y-1.5 p-6', className)}>
+    <div className={cn('flex flex-col space-y-1.5 p-4', className)}>
       {children}
     </div>
   );
@@ -53,7 +51,7 @@ interface CardTitleProps {
 
 export function CardTitle({ children, className }: CardTitleProps) {
   return (
-    <h3 className={cn('text-2xl font-semibold leading-none tracking-tight', className)}>
+    <h3 className={cn('text-xl font-semibold leading-none tracking-tight', className)}>
       {children}
     </h3>
   );
@@ -78,7 +76,7 @@ interface CardContentProps {
 }
 
 export function CardContent({ children, className }: CardContentProps) {
-  return <div className={cn('p-6 pt-0', className)}>{children}</div>;
+  return <div className={cn('p-4 pt-0', className)}>{children}</div>;
 }
 
 interface CardFooterProps {

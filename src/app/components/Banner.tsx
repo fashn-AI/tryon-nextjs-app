@@ -83,7 +83,7 @@ export default function Banner() {
               FASHN AI
             </motion.h1>
             <motion.span 
-              className="text-lg text-purple-300"
+              className="text-lg text-gray-300"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4 }}
@@ -99,18 +99,18 @@ export default function Banner() {
           variants={FADE_IN_ANIMATION_VARIANTS}
           transition={{ delay: 0.3 }}
         >
-          <div className="bg-gradient-to-r from-purple-500 via-indigo-500 to-blue-500 p-0.5 rounded-lg mb-2">
+          <div className="bg-gray-800 p-0.5 rounded-lg mb-2">
             <div className="bg-gray-900/90 backdrop-blur-sm rounded-md p-4">
               <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 mb-2">
-                <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-full shadow-lg">
+                <div className="flex items-center justify-center w-12 h-12 bg-gray-700 rounded-full shadow-lg">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                 </div>
-                <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-purple-300 to-blue-300 text-transparent bg-clip-text">Virtual Try-On Demo</h2>
+                <h2 className="text-xl sm:text-2xl font-bold text-white">Virtual Try-On Demo</h2>
               </div>
               <p className="text-sm sm:text-base text-white/80 leading-relaxed">
-                Experience <span className="text-purple-300 font-semibold">FASHN AI's</span> virtual try-on technology. 
+                Experience <span className="text-gray-300 font-semibold">FASHN AI&apos;s</span> virtual try-on technology. 
                 Upload your model and garment images to see stunning, realistic results in seconds.
               </p>
             </div>
@@ -131,7 +131,7 @@ export default function Banner() {
               target="_blank"
               rel="noopener noreferrer"
               className={cn(
-                "flex items-center gap-1.5 rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-white transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2",
+                "flex items-center gap-1.5 rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-white transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2",
                 link.color
               )}
               variants={FADE_IN_ANIMATION_VARIANTS}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, HTMLMotionProps } from 'framer-motion';
 import { cn } from '../../lib/utils';
 
 type ButtonProps = {
@@ -8,7 +8,7 @@ type ButtonProps = {
   loading?: boolean;
   className?: string;
   children: React.ReactNode;
-} & React.ButtonHTMLAttributes<HTMLButtonElement>;
+} & Omit<HTMLMotionProps<'button'>, 'children'>;
 
 export default function Button({
   variant = 'primary',
@@ -21,7 +21,7 @@ export default function Button({
   const baseStyles = "inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none";
   
   const variantStyles = {
-    primary: "bg-purple-600 text-white hover:bg-purple-700 border border-transparent",
+    primary: "bg-gray-900 text-white hover:bg-gray-800 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-200 border border-transparent",
     secondary: "bg-gray-100 text-gray-900 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600 border border-transparent",
     outline: "bg-transparent border border-gray-300 hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-800",
     ghost: "bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 border border-transparent",

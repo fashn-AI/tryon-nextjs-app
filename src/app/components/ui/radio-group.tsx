@@ -13,10 +13,9 @@ type RadioGroupProps = {
   value: string;
   onChange: (value: string) => void;
   name: string;
-  colorScheme?: 'blue' | 'green' | 'purple';
+  colorScheme?: 'default';
   layout?: 'horizontal' | 'vertical';
   variant?: 'default' | 'card';
-  size?: 'sm' | 'md';
   className?: string;
   label?: string;
 };
@@ -26,10 +25,9 @@ export default function RadioGroup({
   value,
   onChange,
   name,
-  colorScheme = 'purple',
+  colorScheme = 'default',
   layout = 'horizontal',
   variant = 'default',
-  size = 'md',
   className,
   label
 }: RadioGroupProps) {
@@ -44,26 +42,11 @@ export default function RadioGroup({
   };
 
   const colorStyles = {
-    blue: {
-      radio: 'border-blue-300 dark:border-blue-700 data-[checked]:border-blue-600 data-[checked]:bg-blue-600 dark:data-[checked]:border-blue-600 dark:data-[checked]:bg-blue-600 focus-visible:ring-blue-500',
-      card: 'border-blue-200 dark:border-blue-900 data-[checked]:border-blue-600 data-[checked]:bg-blue-50 dark:data-[checked]:border-blue-600 dark:data-[checked]:bg-blue-900/20',
-      dot: 'bg-white dark:bg-white'
+    default: {
+      radio: 'border-gray-300 dark:border-gray-700 data-[checked]:border-gray-900 data-[checked]:bg-gray-900 dark:data-[checked]:border-gray-100 dark:data-[checked]:bg-gray-100 focus-visible:ring-gray-500',
+      card: 'border-gray-200 dark:border-gray-700 data-[checked]:border-gray-900 data-[checked]:bg-gray-50 dark:data-[checked]:border-gray-100 dark:data-[checked]:bg-gray-800',
+      dot: 'bg-white dark:bg-gray-900'
     },
-    green: {
-      radio: 'border-green-300 dark:border-green-700 data-[checked]:border-green-600 data-[checked]:bg-green-600 dark:data-[checked]:border-green-600 dark:data-[checked]:bg-green-600 focus-visible:ring-green-500',
-      card: 'border-green-200 dark:border-green-900 data-[checked]:border-green-600 data-[checked]:bg-green-50 dark:data-[checked]:border-green-600 dark:data-[checked]:bg-green-900/20',
-      dot: 'bg-white dark:bg-white'
-    },
-    purple: {
-      radio: 'border-purple-300 dark:border-purple-700 data-[checked]:border-purple-600 data-[checked]:bg-purple-600 dark:data-[checked]:border-purple-600 dark:data-[checked]:bg-purple-600 focus-visible:ring-purple-500',
-      card: 'border-purple-200 dark:border-purple-900 data-[checked]:border-purple-600 data-[checked]:bg-purple-50 dark:data-[checked]:border-purple-600 dark:data-[checked]:bg-purple-900/20', 
-      dot: 'bg-white dark:bg-white'
-    },
-  };
-
-  const sizeStyles = {
-    sm: 'h-3 w-3',
-    md: 'h-4 w-4',
   };
 
   return (

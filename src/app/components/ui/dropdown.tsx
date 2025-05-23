@@ -1,59 +1,63 @@
-import React, { useState } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import React, { ReactNode, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronDown } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 interface DropdownProps {
+  children: ReactNode;
   label: string;
-  children: React.ReactNode;
+  colorScheme?: 'default';
   className?: string;
-  initialOpen?: boolean;
-  colorScheme?: 'blue' | 'green' | 'purple' | 'default';
 }
 
 export function Dropdown({ 
-  label, 
   children, 
-  className, 
-  initialOpen = false,
-  colorScheme = 'default'
+  label, 
+  colorScheme = 'default',
+  className 
 }: DropdownProps) {
-  const [isOpen, setIsOpen] = useState(initialOpen);
-
-  const toggleDropdown = () => {
-    setIsOpen(!isOpen);
-  };
+  const [isOpen, setIsOpen] = useState(false);
 
   const colorStyles = {
-    default: 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700',
-    blue: 'bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900/40',
-    green: 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-900/40',
-    purple: 'bg-purple-50 dark:bg-purple-950/20 border-purple-200 dark:border-purple-900/40',
+    default: 'bg-gray-50 border-gray-200 dark:bg-gray-800 dark:border-gray-700',
   };
 
   return (
-    <div className={cn('rounded-lg border shadow-sm', colorStyles[colorScheme], className)}>
-      <button
+    <div className={cn('relative', className)}>
+      <motion.button
         type="button"
-        onClick={toggleDropdown}
-        className="w-full p-3 flex justify-between items-center font-medium text-left focus:outline-none"
+        onClick={() => setIsOpen(!isOpen)}
+        className={cn(
+          'w-full px-3 py-2 text-left text-sm font-medium rounded-md transition-colors flex items-center justify-between',
+          colorStyles[colorScheme]
+        )}
+        whileHover={{ backgroundColor: 'rgba(0, 0, 0, 0.05)' }}
+        whileTap={{ scale: 0.98 }}
       >
         {label}
-        <span className="ml-2">
-          {isOpen ? (
-            <ChevronUp className="h-4 w-4" />
-          ) : (
-            <ChevronDown className="h-4 w-4" />
-          )}
-        </span>
-      </button>
+        <motion.div
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <ChevronDown className="h-4 w-4" />
+        </motion.div>
+      </motion.button>
       
-      {isOpen && (
-        <div className="overflow-hidden border-t border-gray-200 dark:border-gray-700">
-          <div className="p-3 pt-0">
-            {children}
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className={cn('rounded-lg border shadow-sm', colorStyles[colorScheme], className)}
+          >
+            <div className="p-4">
+              {children}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

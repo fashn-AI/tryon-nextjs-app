@@ -17,14 +17,14 @@ const resources: Resource[] = [
     href: 'https://docs.fashn.ai/guides/api-parameters-guide',
     description: 'Learn about all available parameters for the FASHN API',
     icon: <BookOpen className="h-5 w-5" />,
-    color: 'from-blue-500 to-sky-600'
+    color: 'from-gray-600 to-gray-700'
   },
   {
     title: 'FASHN API Documentation',
     href: 'https://docs.fashn.ai/',
     description: 'Full documentation for the FASHN API',
     icon: <ExternalLink className="h-5 w-5" />,
-    color: 'from-purple-500 to-indigo-600'
+    color: 'from-gray-700 to-gray-800'
   }
 ];
 
@@ -78,7 +78,7 @@ export default function Footer() {
             className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8 max-w-4xl mx-auto"
             variants={STAGGER_ANIMATION_VARIANTS}
           >
-            {resources.map((resource, index) => (
+            {resources.map((resource) => (
               <motion.a
                 key={resource.title}
                 href={resource.href}
@@ -91,19 +91,19 @@ export default function Footer() {
               >
                 <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
                   <div className={cn(
-                    "flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br text-white",
+                    "flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-700 text-white",
                     resource.color
                   )}>
                     {resource.icon}
                   </div>
-                  <h3 className="text-lg sm:text-xl font-semibold text-white group-hover:text-sky-300 transition-colors">
+                  <h3 className="text-lg sm:text-xl font-semibold text-white group-hover:text-gray-300 transition-colors">
                     {resource.title}
                   </h3>
                 </div>
                 <p className="text-gray-300/80 text-xs sm:text-sm mb-2">
                   {resource.description}
                 </p>
-                <div className="mt-auto flex items-center text-sky-400 text-sm gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="mt-auto flex items-center text-gray-400 text-sm gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <span>Learn more</span>
                   <ExternalLink className="h-3 w-3" />
                 </div>
@@ -112,7 +112,7 @@ export default function Footer() {
                 <motion.div 
                   className="absolute inset-0 rounded-lg z-[-1] opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                   style={{ 
-                    background: `linear-gradient(90deg, ${resource.color.includes('blue') ? '#3b82f6' : '#8b5cf6'} 0%, transparent 25%, transparent 75%, ${resource.color.includes('blue') ? '#3b82f6' : '#8b5cf6'} 100%)`,
+                    background: `linear-gradient(90deg, #4B5563 0%, transparent 25%, transparent 75%, #4B5563 100%)`,
                     backgroundSize: '200% 100%',
                     padding: '1px',
                   }}
@@ -135,7 +135,7 @@ export default function Footer() {
             variants={FADE_IN_ANIMATION_VARIANTS}
           >
             <p className="flex items-center justify-center gap-1">
-              Made with <Heart className="h-4 w-4 text-red-500 animate-pulse" /> by FASHN AI | © {currentYear}
+              Made with <Heart className="h-4 w-4 text-gray-400 animate-pulse" /> by FASHN AI | © {currentYear}
             </p>
           </motion.div>
         </div>
