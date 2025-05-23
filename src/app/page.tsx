@@ -355,17 +355,20 @@ export default function Home() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.2, delay: 0.1 }}
-          className="p-6 border border-gray-200 dark:border-gray-700 rounded-lg my-4 bg-gray-50 dark:bg-gray-800 shadow-sm flex items-center justify-between"
+          className="p-4 sm:p-6 border border-gray-200 dark:border-gray-700 rounded-lg my-4 bg-gray-50 dark:bg-gray-800 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4"
         >
-          <div className="flex items-center gap-2">
-            <Lightbulb className="h-5 w-5 text-gray-600" />
-            <h2 className="text-xl font-semibold">Tips for successful try-on generations</h2>
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <Lightbulb className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600 flex-shrink-0" />
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100 leading-tight">
+              Tips for successful try-on generations
+            </h2>
           </div>
           
           <Button 
             variant="secondary" 
             size="sm" 
             onClick={() => setIsTipsModalOpen(true)}
+            className="w-full sm:w-auto flex-shrink-0"
           >
             View Tips
           </Button>
