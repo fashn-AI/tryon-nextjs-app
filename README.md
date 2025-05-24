@@ -1,14 +1,28 @@
 # FASHN AI Virtual Try-On Next.js App
 
-This is a Next.js application for the FASHN Virtual Try-On API, allowing users to upload model and garment images to see virtual try-on results.
+This is a beautifully designed Next.js application for the FASHN Virtual Try-On API, allowing users to upload model and garment images to see virtual try-on results with a polished and intuitive UI.
+
+![FASHN AI Try-On App](https://cilsrdpvqtgutxprdofn.supabase.co/storage/v1/object/public/assets/logo-enhanced_60x60.png)
 
 ## Features
 
 - **Virtual Try-On**: Apply clothing items to model photos using FASHN AI's advanced technology
-- **Responsive UI**: Clean, modern interface that works on desktop and mobile
+- **Beautiful UI**: Elegant, animated interface with Framer Motion transitions and hover effects
+- **Responsive Design**: Fully responsive layout that works on desktop, tablet, and mobile devices
+- **Dark Mode Support**: Modern UI that adapts to light and dark mode preferences
 - **Client-side Image Preprocessing**: Automatic resizing and optimization for API best practices
-- **Flexible Configuration**: Control all API parameters through an intuitive interface
+- **Interactive Controls**: Enhanced form elements with visual feedback and animations
 - **Example Images**: Built-in examples to explore capabilities without uploading files
+
+## UI Components & Design
+
+The application features a carefully crafted UI with:
+
+- **Animated Components**: Smooth transitions and micro-interactions throughout
+- **Form Enhancements**: Custom-designed radio buttons, checkboxes, and file inputs
+- **Visual Feedback**: Loading states, error messages, and success indicators
+- **Interactive Tips**: Expandable cards with helpful information for optimal results
+- **Modular Layout**: Three-column design separating model, garment, and results sections
 
 ## Getting Started
 
@@ -56,9 +70,8 @@ This is a Next.js application for the FASHN Virtual Try-On API, allowing users t
    - Category (Auto, Top, Bottom, Full-body)
    - Moderation level
    - Run mode (Performance, Balanced, Quality)
-   - Seed
-   - Number of samples
-4. Click "Run" to see the results
+   - Advanced settings (Seed, Number of samples)
+4. Click "Run Try-On" to see the results
 
 ## API Parameters Explained
 
@@ -106,9 +119,20 @@ These preprocessing steps help ensure optimal performance with the API while kee
 ## Technical Architecture
 
 - **Frontend**: React with Next.js App Router, TailwindCSS for styling
+- **Animations**: Framer Motion for smooth transitions and interactions
+- **UI Components**: Custom-built components inspired by modern design systems
 - **API**: Serverless API routes that securely communicate with FASHN API
 - **Image Processing**: Client-side preprocessing using Canvas API
 - **Error Handling**: Graceful fallbacks and informative error messages
+
+## Technologies Used
+
+- **Next.js**: React framework for server-rendered applications
+- **React**: JavaScript library for building user interfaces
+- **TypeScript**: Strongly typed JavaScript for better developer experience
+- **Framer Motion**: Animation library for React
+- **Tailwind CSS**: Utility-first CSS framework
+- **Lucide Icons**: Beautiful, consistent icon set
 
 ## Deployment
 
@@ -119,3 +143,11 @@ To get the most out of the FASHN API, we recommend to read the following guides 
 
 - [API Parameters Guide](https://docs.fashn.ai/guides/api-parameters-guide)
 - [Official API Docs](https://docs.fashn.ai/fashn-api/endpoints#request)
+
+## Contributing
+
+We welcome contributions to improve this application! Feel free to submit issues or pull requests.
+
+## License
+
+This project is open source and available under the MIT License.
