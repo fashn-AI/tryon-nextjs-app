@@ -27,7 +27,7 @@ const CATEGORY_API_MAPPING: { [key: string]: string } = {
 
 // Sample images for examples
 const modelExamples = [
-  '/models/model-example.jpg',
+  '/models/model-example.png',
   'https://app.fashn.ai/_next/static/media/studio-woman.79028a0e.png',
   'https://app.fashn.ai/_next/static/media/street-man.c6590454.png',
   'https://app.fashn.ai/_next/static/media/plus-woman.9235bac2.png',
@@ -36,6 +36,8 @@ const modelExamples = [
 
 const garmentExamples = [
   '/garments/garment-example.jpg',
+  '/garments/women-dress.png',
+  '/garments/man-shirt.png',
   'https://images.pexels.com/photos/17243499/pexels-photo-17243499/free-photo-of-a-woman-leaning-against-a-wall-wearing-a-crop-top.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
   'https://images.pexels.com/photos/17245487/pexels-photo-17245487/free-photo-of-a-young-man-holding-a-skateboard-in-his-hand.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'
 ];
