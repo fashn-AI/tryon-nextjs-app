@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { BookOpen, ExternalLink, Heart } from 'lucide-react';
+import { BookOpen, ExternalLink, Heart, Github } from 'lucide-react';
 import { FADE_IN_ANIMATION_VARIANTS, STAGGER_ANIMATION_VARIANTS, cn } from '../lib/utils';
 
 type Resource = {
@@ -12,6 +12,13 @@ type Resource = {
 };
 
 const resources: Resource[] = [
+  {
+    title: 'GitHub Repository',
+    href: 'https://github.com/fashn-AI/tryon-nextjs-app',
+    description: 'Source code for this Next.js virtual try-on application',
+    icon: <Github className="h-5 w-5" />,
+    color: 'from-gray-500 to-gray-600'
+  },
   {
     title: 'API Parameters Guide',
     href: 'https://docs.fashn.ai/guides/api-parameters-guide',
@@ -75,7 +82,7 @@ export default function Footer() {
           </motion.div>
           
           <motion.div 
-            className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8 max-w-4xl mx-auto"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8 max-w-6xl mx-auto"
             variants={STAGGER_ANIMATION_VARIANTS}
           >
             {resources.map((resource) => (

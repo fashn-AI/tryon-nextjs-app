@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Key, ExternalLink } from 'lucide-react';
+import { X, Key, ExternalLink, Github } from 'lucide-react';
 import Button from './ui/button';
 
 interface ApiKeyModalProps {
@@ -115,6 +115,23 @@ export default function ApiKeyModal({ isOpen, onClose, onSave }: ApiKeyModalProp
                 >
                   Get your API key from FASHN
                   <ExternalLink className="h-3 w-3" />
+                </motion.a>
+              </div>
+
+              <div className="bg-blue-50 dark:bg-blue-900/20 rounded-md p-3">
+                <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                  Want to run this yourself?
+                </p>
+                <motion.a
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  href="https://github.com/fashn-AI/tryon-nextjs-app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-sm text-gray-900 dark:text-gray-100 hover:text-gray-700 dark:hover:text-gray-300 font-medium"
+                >
+                  View source code on GitHub
+                  <Github className="h-3 w-3" />
                 </motion.a>
               </div>
 
