@@ -55,7 +55,7 @@ export default function Home() {
   const [garmentPhotoType, setGarmentPhotoType] = useState('Auto');
   const [category, setCategory] = useState('Auto');
   const [mode, setMode] = useState('Balanced');
-  const [seed, setSeed] = useState<number>(42);
+  const [seed, setSeed] = useState<number>(() => Math.floor(Math.random() * 1000000));
   const [numSamples, setNumSamples] = useState<number>(1);
 
   // Output states
@@ -190,7 +190,7 @@ export default function Home() {
     setGarmentPhotoType('Auto');
     setCategory('Auto');
     setMode('Balanced');
-    setSeed(42);
+    setSeed(Math.floor(Math.random() * 1000000));
     setNumSamples(1);
   };
 
@@ -819,14 +819,26 @@ export default function Home() {
                     <label htmlFor="seed" className="block text-sm font-medium mb-1">
                       Seed
                     </label>
-                    <input
-                      type="number"
-                      id="seed"
-                      min={0}
-                      value={seed}
-                      onChange={(e) => setSeed(parseInt(e.target.value, 10) || 0)}
-                      className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
-                    />
+                    <div className="flex gap-2">
+                      <input
+                        type="number"
+                        id="seed"
+                        min={0}
+                        value={seed}
+                        onChange={(e) => setSeed(parseInt(e.target.value, 10) || 0)}
+                        className="flex-1 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
+                      />
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        type="button"
+                        onClick={() => setSeed(Math.floor(Math.random() * 1000000))}
+                        className="px-3 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-md text-sm font-medium transition-colors cursor-pointer"
+                        title="Generate random seed"
+                      >
+                        🎲
+                      </motion.button>
+                    </div>
                   </div>
                   
                 </motion.div>
