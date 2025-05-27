@@ -48,7 +48,7 @@ The application features a carefully crafted UI with:
 1. Clone the repository
    ```bash
    git clone https://github.com/fashn-AI/tryon-nextjs-app
-   cd fashn-nextjs
+   cd tryon-nextjs-app
    ```
 
 2. Install dependencies
@@ -79,7 +79,6 @@ The application features a carefully crafted UI with:
 3. Configure the parameters:
    - Garment photo type (Auto, Flat-Lay, Model)
    - Category (Auto, Top, Bottom, Full-body)
-   - Moderation level
    - Run mode (Performance, Balanced, Quality)
    - Advanced settings (Seed, Number of samples)
 4. Click "Run Try-On" to see the results
@@ -104,7 +103,6 @@ The application features a carefully crafted UI with:
 
 - **Other Settings**: 
   - `Segmentation Free`: May improve quality for complex backgrounds
-  - `Moderation Level`: Controls content filtering (permissive, conservative, none)
   - `Seed`: Controls randomness for reproducible results
   - `Number of Samples`: Generate multiple variations (1-4)
 
