@@ -430,7 +430,7 @@ export default function Home() {
                           setModelImageFile(null);
                           setModelImagePreview(null);
                         }}
-                        className="absolute -top-2 -right-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-full p-1 shadow-md"
+                        className="absolute -top-2 -right-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-full p-1 shadow-md cursor-pointer"
                       >
                         <X className="h-4 w-4" />
                       </motion.button>
@@ -502,7 +502,7 @@ export default function Home() {
                                 handleModelSwipe('left');
                               }}
                               disabled={modelExampleIndex === 0}
-                              className="w-8 h-8 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 flex items-center justify-center disabled:opacity-30 text-white"
+                              className="w-8 h-8 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 flex items-center justify-center disabled:opacity-30 text-white cursor-pointer disabled:cursor-not-allowed"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -529,7 +529,7 @@ export default function Home() {
                                 handleModelSwipe('right');
                               }}
                               disabled={modelExampleIndex === modelExamples.length - 1}
-                              className="w-8 h-8 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 flex items-center justify-center disabled:opacity-30 text-white"
+                              className="w-8 h-8 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 flex items-center justify-center disabled:opacity-30 text-white cursor-pointer disabled:cursor-not-allowed"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -601,7 +601,7 @@ export default function Home() {
                           setGarmentImageFile(null);
                           setGarmentImagePreview(null);
                         }}
-                        className="absolute -top-2 -right-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-full p-1 shadow-md"
+                        className="absolute -top-2 -right-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-full p-1 shadow-md cursor-pointer"
                       >
                         <X className="h-4 w-4" />
                       </motion.button>
@@ -673,7 +673,7 @@ export default function Home() {
                                 handleGarmentSwipe('left');
                               }}
                               disabled={garmentExampleIndex === 0}
-                              className="w-8 h-8 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 flex items-center justify-center disabled:opacity-30 text-white"
+                              className="w-8 h-8 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 flex items-center justify-center disabled:opacity-30 text-white cursor-pointer disabled:cursor-not-allowed"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -700,7 +700,7 @@ export default function Home() {
                                 handleGarmentSwipe('right');
                               }}
                               disabled={garmentExampleIndex === garmentExamples.length - 1}
-                              className="w-8 h-8 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 flex items-center justify-center disabled:opacity-30 text-white"
+                              className="w-8 h-8 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 flex items-center justify-center disabled:opacity-30 text-white cursor-pointer disabled:cursor-not-allowed"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -913,6 +913,15 @@ export default function Home() {
                             }}
                             className="relative group cursor-pointer"
                             onClick={() => openResultsModal(index)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                openResultsModal(index);
+                              }
+                            }}
+                            tabIndex={0}
+                            role="button"
+                            aria-label={`View result ${index + 1} in full screen`}
                           >
                             <div className="aspect-[2/3] border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-gray-800">
                               <Image 
@@ -949,16 +958,25 @@ export default function Home() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.15 }}
-              className="fixed inset-0 bg-black/95 backdrop-blur-sm z-50 flex items-center justify-center"
+              className="fixed inset-0 w-screen h-screen bg-black/95 backdrop-blur-sm z-50 flex items-center justify-center"
+              style={{ 
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                width: '100vw',
+                height: '100vh'
+              }}
               onClick={() => setIsResultsModalOpen(false)}
             >
-              <div className="relative w-full h-full flex items-center justify-center p-4">
+              <div className="relative w-full h-full flex items-center justify-center">
                 {/* Close button */}
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={() => setIsResultsModalOpen(false)}
-                  className="absolute top-4 right-4 z-10 bg-black/70 hover:bg-black/90 text-white rounded-full p-3 backdrop-blur-sm transition-colors"
+                  className="absolute top-4 right-4 z-10 bg-black/70 hover:bg-black/90 text-white rounded-full p-3 backdrop-blur-sm transition-colors cursor-pointer"
                 >
                   <X className="h-6 w-6" />
                 </motion.button>
@@ -977,7 +995,7 @@ export default function Home() {
                       e.stopPropagation();
                       navigateResult('prev');
                     }}
-                    className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 bg-black/70 hover:bg-black/90 text-white rounded-full p-3 backdrop-blur-sm transition-colors"
+                    className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 bg-black/70 hover:bg-black/90 text-white rounded-full p-3 backdrop-blur-sm transition-colors cursor-pointer"
                   >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -994,7 +1012,7 @@ export default function Home() {
                       e.stopPropagation();
                       navigateResult('next');
                     }}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 bg-black/70 hover:bg-black/90 text-white rounded-full p-3 backdrop-blur-sm transition-colors"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 bg-black/70 hover:bg-black/90 text-white rounded-full p-3 backdrop-blur-sm transition-colors cursor-pointer"
                   >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -1009,15 +1027,15 @@ export default function Home() {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.15, ease: "easeOut" }}
-                  className="max-w-full max-h-full flex items-center justify-center"
+                  className="w-full h-full flex items-center justify-center p-4"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <Image
                     src={resultGallery[currentResultIndex]}
                     alt={`Result ${currentResultIndex + 1}`}
-                    className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
-                    width={800}
-                    height={1000}
+                    className="w-auto h-auto max-w-[min(400px,calc(100vw-2rem))] max-h-[min(533px,calc(100vh-2rem))] object-contain"
+                    width={1200}
+                    height={1600}
                     unoptimized
                   />
                 </motion.div>
@@ -1030,8 +1048,9 @@ export default function Home() {
                   target="_blank"
                   rel="noopener noreferrer"
                   download
-                  className="absolute bottom-4 right-4 z-10 bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-full text-sm flex items-center gap-2 backdrop-blur-sm transition-colors"
+                  className="absolute bottom-4 right-4 z-10 bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-full text-sm flex items-center gap-2 backdrop-blur-sm transition-colors cursor-pointer"
                   onClick={(e) => e.stopPropagation()}
+                  style={{ marginRight: '1rem' }}
                 >
                   <Zap className="h-4 w-4" />
                   Download
@@ -1048,7 +1067,7 @@ export default function Home() {
                           e.stopPropagation();
                           setCurrentResultIndex(idx);
                         }}
-                        className={`w-2 h-2 rounded-full transition-all ${
+                        className={`w-2 h-2 rounded-full transition-all cursor-pointer ${
                           idx === currentResultIndex ? 'bg-white scale-125' : 'bg-white/50'
                         }`}
                       />
