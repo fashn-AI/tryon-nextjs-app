@@ -95,7 +95,7 @@ export default function RadioGroup({
                       )}
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
-                      transition={{ duration: 0.1 }}
+                      transition={{ duration: 0.2 }}
                     />
                   )}
                 </motion.div>
@@ -140,7 +140,7 @@ export default function RadioGroup({
                         )}
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
-                        transition={{ duration: 0.1 }}
+                        transition={{ duration: 0.2 }}
                       />
                     )}
                   </motion.div>

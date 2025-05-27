@@ -14,7 +14,7 @@ export function cn(...inputs: ClassValue[]) {
  */
 export const FADE_IN_ANIMATION_VARIANTS = {
   hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { type: 'spring' } },
+  show: { opacity: 1, transition: { duration: 0.2 } },
 };
 
 export const FADE_IN_ANIMATION_CARD_VARIANTS = {
@@ -23,9 +23,7 @@ export const FADE_IN_ANIMATION_CARD_VARIANTS = {
     opacity: 1, 
     y: 0, 
     transition: { 
-      type: 'spring',
-      stiffness: 300,
-      damping: 30
+      duration: 0.2
     } 
   },
 };
@@ -36,9 +34,7 @@ export const FADE_UP_ANIMATION_VARIANTS = {
     opacity: 1, 
     y: 0, 
     transition: { 
-      type: 'spring',
-      stiffness: 100,
-      damping: 15
+      duration: 0.2
     } 
   },
 };
@@ -47,7 +43,8 @@ export const STAGGER_ANIMATION_VARIANTS = {
   hidden: {},
   show: {
     transition: {
-      staggerChildren: 0.1
+      staggerChildren: 0.05,
+      duration: 0.2
     }
   }
 };

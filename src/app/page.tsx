@@ -354,7 +354,7 @@ export default function Home() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.2, delay: 0.1 }}
+          transition={{ duration: 0.2, delay: 0.02 }}
           className="p-4 sm:p-6 border border-gray-200 dark:border-gray-700 rounded-lg my-4 bg-gray-50 dark:bg-gray-800 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4"
         >
           <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -382,7 +382,7 @@ export default function Home() {
         <motion.form 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.2, delay: 0.2 }}
+          transition={{ duration: 0.2, delay: 0.05 }}
           onSubmit={handleSubmit} 
           className="mt-10 space-y-10"
         >
@@ -948,7 +948,7 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
+              transition={{ duration: 0.2 }}
               className="fixed inset-0 bg-black/95 backdrop-blur-sm z-50 flex items-center justify-center"
               onClick={() => setIsResultsModalOpen(false)}
             >
@@ -1008,7 +1008,7 @@ export default function Home() {
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.15, ease: "easeOut" }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
                   className="max-w-full max-h-full flex items-center justify-center"
                   onClick={(e) => e.stopPropagation()}
                 >

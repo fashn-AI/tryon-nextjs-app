@@ -60,7 +60,7 @@ export default function Tips() {
     <motion.div 
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.2 }}
+      transition={{ delay: 0.02, duration: 0.2 }}
       className="p-6 border border-gray-200 dark:border-gray-700 rounded-lg flex flex-col gap-4 my-4 bg-gray-50 dark:bg-gray-800 shadow-sm"
     >
       <div className="flex items-center gap-2 justify-center">
@@ -76,7 +76,8 @@ export default function Tips() {
           hidden: {},
           show: {
             transition: {
-              staggerChildren: 0.1
+              staggerChildren: 0.02,
+              duration: 0.2
             }
           }
         }}
@@ -142,7 +143,7 @@ export default function Tips() {
         className="text-sm text-center text-gray-500 dark:text-gray-400 mt-2 italic"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
+        transition={{ delay: 0.05, duration: 0.2 }}
       >
         Click on any tip for more information
       </motion.p>

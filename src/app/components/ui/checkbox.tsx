@@ -44,7 +44,7 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
                 initial={{ opacity: 0, scale: 0.5 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.5 }}
-                transition={{ duration: 0.1 }}
+                transition={{ duration: 0.2 }}
                 className="flex h-full w-full items-center justify-center"
               >
                 <Check className="h-3 w-3 text-white dark:text-gray-900" />

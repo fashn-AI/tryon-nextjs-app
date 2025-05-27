@@ -62,7 +62,7 @@ export default function Banner() {
         >
           <motion.div
             whileHover={{ rotate: 10, scale: 1.1 }}
-            transition={{ type: "spring", stiffness: 400, damping: 10 }}
+            transition={{ type: "spring", stiffness: 400, damping: 10, duration: 0.2 }}
           >
             <Image
               src="https://cilsrdpvqtgutxprdofn.supabase.co/storage/v1/object/public/assets/logo-enhanced_60x60.png"
@@ -78,7 +78,7 @@ export default function Banner() {
               className="text-4xl text-white m-0 font-sans font-bold"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+              transition={{ delay: 0.05, duration: 0.2 }}
             >
               FASHN AI
             </motion.h1>
@@ -86,7 +86,7 @@ export default function Banner() {
               className="text-lg text-gray-300"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
+              transition={{ delay: 0.1, duration: 0.2 }}
             >
               NextJS Demo App
             </motion.span>
@@ -97,7 +97,7 @@ export default function Banner() {
         <motion.div
           className="max-w-2xl relative z-10 px-3 sm:px-0 text-center"
           variants={FADE_IN_ANIMATION_VARIANTS}
-          transition={{ delay: 0.3 }}
+          transition={{ delay: 0.05, duration: 0.2 }}
         >
           <div className="bg-gray-800 p-0.5 rounded-lg mb-2">
             <div className="bg-gray-900/90 backdrop-blur-sm rounded-md p-4">
@@ -137,7 +137,7 @@ export default function Banner() {
               variants={FADE_IN_ANIMATION_VARIANTS}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              transition={{ delay: 0.1 * index }}
+              transition={{ delay: 0.02 * index, duration: 0.2 }}
             >
               {link.icon}
               {link.name}

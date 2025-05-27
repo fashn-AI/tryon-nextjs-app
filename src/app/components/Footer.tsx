@@ -57,10 +57,10 @@ export default function Footer() {
                 opacity: [0, 0.3, 0],
               }}
               transition={{
-                duration: Math.random() * 8 + 10,
+                duration: 0.2,
                 repeat: Infinity,
                 ease: "linear",
-                delay: Math.random() * 5,
+                delay: 0.02 * i,
               }}
             />
           ))}
@@ -84,7 +84,7 @@ export default function Footer() {
                 href={resource.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative flex flex-col p-3 sm:p-6 bg-gray-800/50 hover:bg-gray-800 rounded-lg backdrop-blur-sm border border-gray-700/50 transition-all duration-300"
+                className="group relative flex flex-col p-3 sm:p-6 bg-gray-800/50 hover:bg-gray-800 rounded-lg backdrop-blur-sm border border-gray-700/50 transition-all duration-200"
                 variants={FADE_IN_ANIMATION_VARIANTS}
                 whileHover={{ y: -5, transition: { duration: 0.2 } }}
                 whileTap={{ scale: 0.98 }}
@@ -110,7 +110,7 @@ export default function Footer() {
                 
                 {/* Gradient border animation */}
                 <motion.div 
-                  className="absolute inset-0 rounded-lg z-[-1] opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  className="absolute inset-0 rounded-lg z-[-1] opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                   style={{ 
                     background: `linear-gradient(90deg, #4B5563 0%, transparent 25%, transparent 75%, #4B5563 100%)`,
                     backgroundSize: '200% 100%',
@@ -120,7 +120,7 @@ export default function Footer() {
                     backgroundPosition: ['0% 0%', '100% 0%'],
                   }}
                   transition={{
-                    duration: 3,
+                    duration: 0.2,
                     repeat: Infinity,
                     repeatType: 'reverse',
                     ease: 'linear',
