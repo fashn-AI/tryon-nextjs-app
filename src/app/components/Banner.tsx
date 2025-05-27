@@ -7,7 +7,7 @@ import { FADE_IN_ANIMATION_VARIANTS, STAGGER_ANIMATION_VARIANTS, cn } from '../l
 const socialLinks = [
   { 
     name: 'FASHN AI', 
-    href: 'https://fashn.ai', 
+    href: 'https://fashn.ai?utm_source=nextjs-tryon-app&utm_medium=banner', 
     icon: <ExternalLink className="h-4 w-4" />,
     color: 'bg-gray-800 hover:bg-gray-900 dark:bg-gray-700 dark:hover:bg-gray-600'
   },
@@ -33,7 +33,7 @@ const socialLinks = [
   },
   { 
     name: 'Instagram', 
-    href: 'https://www.instagram.com/fashn.ai/', 
+    href: 'https://www.instagram.com/fashn.ai/?utm_source=tryon-app&utm_medium=banner&utm_campaign=social-media&utm_content=instagram', 
     icon: <Instagram className="h-4 w-4" />,
     color: 'bg-[#E4405F] hover:bg-[#E4405F]/90 dark:bg-[#E4405F]/80 dark:hover:bg-[#E4405F]'
   },

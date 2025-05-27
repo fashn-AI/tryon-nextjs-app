@@ -108,7 +108,7 @@ export default function ApiKeyModal({ isOpen, onClose, onSave }: ApiKeyModalProp
                 <motion.a
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  href="https://docs.fashn.ai/"
+                  href="https://docs.fashn.ai/?utm_source=nextjs-tryon-app&utm_medium=modal"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 text-sm text-gray-900 dark:text-gray-100 hover:text-gray-700 dark:hover:text-gray-300 font-medium"

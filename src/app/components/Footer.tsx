@@ -14,14 +14,14 @@ type Resource = {
 const resources: Resource[] = [
   {
     title: 'API Parameters Guide',
-    href: 'https://docs.fashn.ai/guides/api-parameters-guide',
+    href: 'https://docs.fashn.ai/guides/api-parameters-guide?utm_source=nextjs-tryon-app&utm_medium=footer',
     description: 'Learn about all available parameters for the FASHN API',
     icon: <BookOpen className="h-5 w-5" />,
     color: 'from-gray-600 to-gray-700'
   },
   {
     title: 'FASHN API Documentation',
-    href: 'https://docs.fashn.ai/',
+    href: 'https://docs.fashn.ai/?utm_source=nextjs-tryon-app&utm_medium=footer',
     description: 'Full documentation for the FASHN API',
     icon: <ExternalLink className="h-5 w-5" />,
     color: 'from-gray-700 to-gray-800'

@@ -30,7 +30,7 @@ The application features a carefully crafted UI with:
 
 - Node.js (v18+)
 - npm or yarn
-- FASHN API key (get one from [fashn.ai](https://fashn.ai))
+- FASHN API key (get one from [fashn.ai](https://fashn.ai?utm_source=nextjs-tryon-app&utm_medium=readme))
 
 ### Installation
 
@@ -141,8 +141,8 @@ You can deploy this application to any hosting platform that supports Next.js ap
 ## Helpful Guides and Documentation
 To get the most out of the FASHN API, we recommend to read the following guides to better understand all node features and parameters:
 
-- [API Parameters Guide](https://docs.fashn.ai/guides/api-parameters-guide)
-- [Official API Docs](https://docs.fashn.ai/fashn-api/endpoints#request)
+- [API Parameters Guide](https://docs.fashn.ai/guides/api-parameters-guide?utm_source=nextjs-tryon-app&utm_medium=readme)
+- [Official API Docs](https://docs.fashn.ai/fashn-api/endpoints?utm_source=nextjs-tryon-app&utm_medium=readme)
 
 ## Contributing
 
