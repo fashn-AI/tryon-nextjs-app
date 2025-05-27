@@ -4,6 +4,8 @@
 
 This is a beautifully designed Next.js application for the FASHN Virtual Try-On API, allowing users to upload model and garment images to see virtual try-on results with a polished and intuitive UI.
 
+## [Live demo 🔗](https://tryon-nextjs-app.vercel.app/)
+
 ![FASHN AI Next App preview](/public/preview.png)
 
 ## Features
