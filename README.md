@@ -2,15 +2,22 @@
 
 ![FASHN AI Try-On App](https://cilsrdpvqtgutxprdofn.supabase.co/storage/v1/object/public/assets/logo-enhanced_60x60.png)
 
-This is a beautifully designed Next.js application for the FASHN Virtual Try-On API, allowing users to upload model and garment images to see virtual try-on results with a polished and intuitive UI.
+This repository is a Next.js application for the FASHN Virtual Try-On API, allowing users to upload model and garment images to see virtual try-on results.
 
 ## [Live demo 🔗](https://tryon-nextjs-app.vercel.app/)
 
 ![FASHN AI Next App preview](/public/preview.png)
 
+### Sign Up to FASHN
+This repository requires an API key from a FASHN account.
+
+Don't have an account yet? [Create an account](https://app.fashn.ai/?utm_source=nextjs-tryon-app&utm_medium=readme&utm_campaign=signup)
+
+If you already have an account, go to Settings → API → `+ Create new API key`
+
 ## Features
 
-- **Virtual Try-On**: Apply clothing items to model photos using FASHN AI's advanced technology
+- **Virtual Try-On**: Apply clothing items to model photos using FASHN AI's advanced VITON technology
 - **Beautiful UI**: Elegant, animated interface with Framer Motion transitions and hover effects
 - **Responsive Design**: Fully responsive layout that works on desktop, tablet, and mobile devices
 - **Dark Mode Support**: Modern UI that adapts to light and dark mode preferences
@@ -34,7 +41,7 @@ The application features a carefully crafted UI with:
 
 - Node.js (v18+)
 - npm or yarn
-- FASHN API key (get one from [fashn.ai](https://fashn.ai))
+- FASHN API key (get one from [fashn.ai](https://fashn.ai/?utm_source=nextjs-tryon-app&utm_medium=readme&utm_campaign=api-key))
 
 ### Installation
 
@@ -145,8 +152,8 @@ You can deploy this application to any hosting platform that supports Next.js ap
 ## Helpful Guides and Documentation
 To get the most out of the FASHN API, we recommend to read the following guides to better understand all node features and parameters:
 
-- [API Parameters Guide](https://docs.fashn.ai/guides/api-parameters-guide)
-- [Official API Docs](https://docs.fashn.ai/fashn-api/endpoints#request)
+- [API Parameters Guide](https://docs.fashn.ai/guides/api-parameters-guide?utm_source=nextjs-tryon-app&utm_medium=readme&utm_campaign=documentation)
+- [Official API Docs](https://docs.fashn.ai/fashn-api/endpoints#request?utm_source=nextjs-tryon-app&utm_medium=readme&utm_campaign=documentation)
 
 ## Contributing
 

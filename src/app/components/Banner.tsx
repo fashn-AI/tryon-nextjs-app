@@ -7,7 +7,7 @@ import { FADE_IN_ANIMATION_VARIANTS, STAGGER_ANIMATION_VARIANTS, cn } from '../l
 const socialLinks = [
   { 
     name: 'FASHN AI', 
-    href: 'https://fashn.ai', 
+    href: 'https://fashn.ai/?utm_source=nextjs-tryon-app&utm_medium=banner&utm_campaign=website', 
     icon: <ExternalLink className="h-4 w-4" />,
     color: 'bg-gray-800 hover:bg-gray-900 dark:bg-gray-700 dark:hover:bg-gray-600'
   },
