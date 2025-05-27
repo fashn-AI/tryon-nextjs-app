@@ -1,8 +1,10 @@
 # FASHN AI Virtual Try-On Next.js App
 
+![FASHN AI Try-On App](https://cilsrdpvqtgutxprdofn.supabase.co/storage/v1/object/public/assets/logo-enhanced_60x60.png)
+
 This is a beautifully designed Next.js application for the FASHN Virtual Try-On API, allowing users to upload model and garment images to see virtual try-on results with a polished and intuitive UI.
 
-![FASHN AI Try-On App](https://cilsrdpvqtgutxprdofn.supabase.co/storage/v1/object/public/assets/logo-enhanced_60x60.png)
+![FASHN AI Next App preview](/public/preview.png)
 
 ## Features
 
