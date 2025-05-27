@@ -38,8 +38,6 @@ const garmentExamples = [
   '/garments/garment-example.jpg',
   '/garments/women-dress.png',
   '/garments/man-shirt.png',
-  'https://images.pexels.com/photos/17243499/pexels-photo-17243499/free-photo-of-a-woman-leaning-against-a-wall-wearing-a-crop-top.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-  'https://images.pexels.com/photos/17245487/pexels-photo-17245487/free-photo-of-a-young-man-holding-a-skateboard-in-his-hand.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'
 ];
 
 const MAX_IMAGE_HEIGHT = 2000;
@@ -484,7 +482,7 @@ export default function Home() {
                               alt={`Model Example ${modelExampleIndex + 1}`} 
                               width={280} 
                               height={350} 
-                              className="w-full h-full object-cover pointer-events-none transform scale-70" 
+                              className="w-full h-full object-contain pointer-events-none transform scale-70" 
                             />
                             
                             {/* Swipe hint overlay */}
@@ -655,7 +653,7 @@ export default function Home() {
                               alt={`Garment Example ${garmentExampleIndex + 1}`} 
                               width={280} 
                               height={350} 
-                              className="w-full h-full object-cover pointer-events-none transform scale-70" 
+                              className="w-full h-full object-contain pointer-events-none transform scale-70" 
                             />
                             
                             {/* Swipe hint overlay */}
