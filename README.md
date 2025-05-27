@@ -15,26 +15,6 @@ Don't have an account yet? [Create an account](https://app.fashn.ai/?utm_source=
 
 If you already have an account, go to Settings → API → `+ Create new API key`
 
-## Features
-
-- **Virtual Try-On**: Apply clothing items to model photos using FASHN AI's advanced VITON technology
-- **Beautiful UI**: Elegant, animated interface with Framer Motion transitions and hover effects
-- **Responsive Design**: Fully responsive layout that works on desktop, tablet, and mobile devices
-- **Dark Mode Support**: Modern UI that adapts to light and dark mode preferences
-- **Client-side Image Preprocessing**: Automatic resizing and optimization for API best practices
-- **Interactive Controls**: Enhanced form elements with visual feedback and animations
-- **Example Images**: Built-in examples to explore capabilities without uploading files
-
-## UI Components & Design
-
-The application features a carefully crafted UI with:
-
-- **Animated Components**: Smooth transitions and micro-interactions throughout
-- **Form Enhancements**: Custom-designed radio buttons, checkboxes, and file inputs
-- **Visual Feedback**: Loading states, error messages, and success indicators
-- **Interactive Tips**: Expandable cards with helpful information for optimal results
-- **Modular Layout**: Three-column design separating model, garment, and results sections
-
 ## Getting Started
 
 ### Prerequisites
@@ -125,24 +105,6 @@ These preprocessing steps help ensure optimal performance with the API while kee
 - **Pose Consistency**: Use similar poses between model and garment images
 - **Image Quality**: Higher resolution and clear lighting improve output quality
 
-## Technical Architecture
-
-- **Frontend**: React with Next.js App Router, TailwindCSS for styling
-- **Animations**: Framer Motion for smooth transitions and interactions
-- **UI Components**: Custom-built components inspired by modern design systems
-- **API**: Serverless API routes that securely communicate with FASHN API
-- **Image Processing**: Client-side preprocessing using Canvas API
-- **Error Handling**: Graceful fallbacks and informative error messages
-
-## Technologies Used
-
-- **Next.js**: React framework for server-rendered applications
-- **React**: JavaScript library for building user interfaces
-- **TypeScript**: Strongly typed JavaScript for better developer experience
-- **Framer Motion**: Animation library for React
-- **Tailwind CSS**: Utility-first CSS framework
-- **Lucide Icons**: Beautiful, consistent icon set
-
 ## Deployment
 
 You can deploy this application to any hosting platform that supports Next.js applications. Make sure to set up your environment variables (`FASHN_API_KEY`) on your hosting platform.
@@ -152,6 +114,27 @@ To get the most out of the FASHN API, we recommend to read the following guides 
 
 - [API Parameters Guide](https://docs.fashn.ai/guides/api-parameters-guide?utm_source=nextjs-tryon-app&utm_medium=readme&utm_campaign=documentation)
 - [Official API Docs](https://docs.fashn.ai/fashn-api/endpoints#request?utm_source=nextjs-tryon-app&utm_medium=readme&utm_campaign=documentation)
+
+## Features
+
+- **Virtual Try-On**: Apply clothing items to model photos using FASHN AI's advanced VITON technology
+- **Responsive Design**: Works seamlessly on desktop, tablet, and mobile devices
+- **Client-side Image Preprocessing**: Automatic resizing and optimization for API best practices
+- **Example Images**: Built-in examples to explore capabilities without uploading files
+- **Advanced Controls**: Multiple generation modes, seed control, and batch processing
+
+## Technical Overview
+
+**Frontend Stack**: React with Next.js App Router, TypeScript, TailwindCSS, and Framer Motion for animations
+
+**Key Components**:
+- Animated UI with smooth transitions and micro-interactions
+- Custom form elements with visual feedback
+- Three-column modular layout (model, garment, controls)
+- Full-screen results modal with navigation
+- Interactive tips and help system
+
+**Backend**: Serverless API routes with secure FASHN API integration, client-side image preprocessing using Canvas API, and error handling
 
 ## Contributing
 
