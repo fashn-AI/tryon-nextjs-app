@@ -16,6 +16,7 @@ import RadioGroup from './components/ui/radio-group';
 import Slider from './components/ui/slider';
 import { Dropdown } from './components/ui/dropdown';
 import { cn } from './lib/utils';
+import pica from 'pica';
 
 // Map display names to API values
 const CATEGORY_API_MAPPING: { [key: string]: string } = {
@@ -195,75 +196,62 @@ export default function Home() {
   };
 
   /**
-   * Preprocess image according to FASHN API best practices:
-   * - Resize images to max height of 2000px
-   * - Maintain aspect ratio
-   * - Convert to JPEG with 95% quality
+   * Resize image using pica for high-quality downscaling
+   * - Uses Lanczos filtering for better quality
+   * - Maintains aspect ratio
+   * - Returns resized File object
    */
-  const preprocessImage = async (file: File): Promise<string> => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        // Create image element from file to get dimensions
-        const img = document.createElement('img');
-        img.src = URL.createObjectURL(file);
-        
-        await new Promise((imgResolve) => {
-          img.onload = () => imgResolve(null);
-        });
-        
-        // Check if resizing is needed
-        if (img.height <= MAX_IMAGE_HEIGHT) {
-          // If image is already correctly sized, just convert to base64
-          const reader = new FileReader();
-          reader.readAsDataURL(file);
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = (error) => reject(error);
-          return;
-        }
-        
-        // Calculate new dimensions maintaining aspect ratio
-        const aspectRatio = img.width / img.height;
-        const newHeight = MAX_IMAGE_HEIGHT;
-        const newWidth = Math.round(newHeight * aspectRatio);
-        
-        // Create canvas for resized image
-        const canvas = document.createElement('canvas');
-        canvas.width = newWidth;
-        canvas.height = newHeight;
-        
-        // Use standard canvas API for resizing
-        // Note: In production, using a library like Pica would provide better quality
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-          throw new Error('Failed to get canvas context');
-        }
-        ctx.drawImage(img, 0, 0, newWidth, newHeight);
-        
-        // Get as blob with quality setting
-        canvas.toBlob(
-          (blob) => {
-            if (!blob) {
-              reject(new Error('Failed to convert canvas to blob'));
-              return;
-            }
-            // Convert blob to base64
-            const reader = new FileReader();
-            reader.readAsDataURL(blob);
-            reader.onload = () => resolve(reader.result as string);
-            reader.onerror = (error) => reject(error);
-          },
-          'image/jpeg',
-          JPEG_QUALITY
-        );
-      } catch (error) {
-        console.error('Image preprocessing failed:', error);
-        reject(error);
-      }
-    });
+  const resizeImagePica = async (file: File, maxDimension = MAX_IMAGE_HEIGHT): Promise<File> => {
+    const objectUrl = URL.createObjectURL(file);
+    const img = new window.Image();
+    img.src = objectUrl;
+
+    await img.decode();
+    const { width, height } = img;
+
+    // If both dimensions are below the threshold, skip resizing
+    if (width <= maxDimension && height <= maxDimension) {
+      URL.revokeObjectURL(objectUrl);
+      return file;
+    }
+
+    // Calculate new dimensions (fit: inside)
+    const aspect = width / height;
+    let newWidth, newHeight;
+    if (width > height) {
+      newWidth = maxDimension;
+      newHeight = Math.round(maxDimension / aspect);
+    } else {
+      newHeight = maxDimension;
+      newWidth = Math.round(maxDimension * aspect);
+    }
+
+    // Source canvas
+    const sourceCanvas = document.createElement('canvas');
+    sourceCanvas.width = width;
+    sourceCanvas.height = height;
+    const ctx = sourceCanvas.getContext('2d');
+    ctx?.drawImage(img, 0, 0);
+
+    // Target canvas
+    const targetCanvas = document.createElement('canvas');
+    targetCanvas.width = newWidth;
+    targetCanvas.height = newHeight;
+
+    // Use pica for high-quality downscale (Lanczos)
+    const picaInstance = pica();
+    await picaInstance.resize(sourceCanvas, targetCanvas);
+
+    // Convert to Blob, then to File
+    const outputBlob = await picaInstance.toBlob(targetCanvas, file.type || 'image/png', JPEG_QUALITY);
+    const resizedFile = new File([outputBlob], file.name, { type: outputBlob.type });
+
+    URL.revokeObjectURL(objectUrl);
+    return resizedFile;
   };
 
-  // Convert file to base64 (fallback for preprocessing errors)
-  const fileToBase64 = (file: File): Promise<string> => {
+  // Convert file to base64
+  const fileToBase64 = async (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -296,8 +284,10 @@ export default function Home() {
       let modelImageBase64, garmentImageBase64;
       
       try {
-        modelImageBase64 = await preprocessImage(modelImageFile);
-        garmentImageBase64 = await preprocessImage(garmentImageFile);
+        const resizedModelFile = await resizeImagePica(modelImageFile);
+        const resizedGarmentFile = await resizeImagePica(garmentImageFile);
+        modelImageBase64 = await fileToBase64(resizedModelFile);
+        garmentImageBase64 = await fileToBase64(resizedGarmentFile);
       } catch (preprocessError) {
         console.warn('Image preprocessing failed, falling back to direct base64 conversion:', preprocessError);
         modelImageBase64 = await fileToBase64(modelImageFile);
