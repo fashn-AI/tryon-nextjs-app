@@ -59,6 +59,7 @@ export default function Home() {
   const [seed, setSeed] = useState<number>(() => Math.floor(Math.random() * 1000000));
   const [numSamples, setNumSamples] = useState<number>(1);
   const [nightly, setNightly] = useState(false);
+  const [comparison, setComparison] = useState(false);
 
   // Output states
   const [resultGallery, setResultGallery] = useState<string[]>([]);
@@ -90,6 +91,27 @@ export default function Home() {
       setApiKey(savedApiKey);
     }
   }, []);
+
+  // Keyboard navigation for results modal
+  useEffect(() => {
+    if (!isResultsModalOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft' && currentResultIndex > 0) {
+        e.preventDefault();
+        navigateResult('prev');
+      } else if (e.key === 'ArrowRight' && currentResultIndex < resultGallery.length - 1) {
+        e.preventDefault();
+        navigateResult('next');
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        setIsResultsModalOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isResultsModalOpen, currentResultIndex, resultGallery.length]);
 
   // Handle saving API key
   const handleSaveApiKey = (newApiKey: string) => {
@@ -195,6 +217,7 @@ export default function Home() {
     setSeed(Math.floor(Math.random() * 1000000));
     setNumSamples(1);
     setNightly(false);
+    setComparison(false);
   };
 
   /**
@@ -296,7 +319,8 @@ export default function Home() {
         garmentImageBase64 = await fileToBase64(garmentImageFile);
       }
 
-      const payload = {
+      // Create base payload without nightly parameter
+      const basePayload = {
         model_image: modelImageBase64,
         garment_image: garmentImageBase64,
         garment_photo_type: garmentPhotoType.toLowerCase(),
@@ -306,26 +330,66 @@ export default function Home() {
         seed: seed,
         num_samples: numSamples,
         api_key: apiKey, // Include user's API key
-        nightly: nightly, // Include nightly parameter
       };
 
-      const response = await fetch('/api/tryon', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
+      if (comparison) {
+        // Run both normal and nightly in parallel for comparison
+        const [normalResponse, nightlyResponse] = await Promise.all([
+          fetch('/api/tryon', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...basePayload, nightly: false }),
+          }),
+          fetch('/api/tryon', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...basePayload, nightly: true }),
+          })
+        ]);
 
-      const data = await response.json();
+        const [normalData, nightlyData] = await Promise.all([
+          normalResponse.json(),
+          nightlyResponse.json()
+        ]);
 
-      if (!response.ok) {
-        // Check if API key is required/invalid
-        if (data.requiresApiKey) {
-          setIsApiKeyModalOpen(true);
+        // Check for errors in either response
+        if (!normalResponse.ok) {
+          if (normalData.requiresApiKey) {
+            setIsApiKeyModalOpen(true);
+          }
+          throw new Error(`Normal API failed: ${normalData.error || normalResponse.statusText}`);
         }
-        throw new Error(data.error || `API request failed with status ${response.status}`);
-      }
+        if (!nightlyResponse.ok) {
+          throw new Error(`Nightly API failed: ${nightlyData.error || nightlyResponse.statusText}`);
+        }
 
-      setResultGallery(data.output || []);
+        // Combine results from both APIs
+        const normalResults = normalData.output || [];
+        const nightlyResults = nightlyData.output || [];
+        setResultGallery([...normalResults, ...nightlyResults]);
+
+      } else {
+        // Single API call (normal behavior)
+        const payload = { ...basePayload, nightly: nightly };
+
+        const response = await fetch('/api/tryon', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          // Check if API key is required/invalid
+          if (data.requiresApiKey) {
+            setIsApiKeyModalOpen(true);
+          }
+          throw new Error(data.error || `API request failed with status ${response.status}`);
+        }
+
+        setResultGallery(data.output || []);
+      }
 
     } catch (err: unknown) {
       console.error("Try-on error:", err);
@@ -834,11 +898,29 @@ export default function Home() {
                     </div>
                   </div>
                   
+                  <div className="relative group">
+                    <Checkbox
+                      checked={nightly}
+                      onChange={(e) => setNightly(e.target.checked)}
+                      label="🧪 Experimental (Nightly)"
+                      description="Access latest experimental features - results may vary"
+                    />
+                    
+                    {/* Tooltip */}
+                    <div className="absolute left-0 bottom-full mb-2 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200 z-10">
+                      <div className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs rounded-lg px-3 py-2 shadow-lg max-w-xs whitespace-normal">
+                        <div className="font-medium mb-1">When to use Nightly:</div>
+                        <div>Early access to model improvements before public release. We deploy updates rapidly, so nightly and normal often produce identical results.</div>
+                        <div className="absolute top-full left-4 w-2 h-2 bg-gray-900 dark:bg-gray-100 rotate-45 transform -translate-y-1"></div>
+                      </div>
+                    </div>
+                  </div>
+                  
                   <Checkbox
-                    checked={nightly}
-                    onChange={(e) => setNightly(e.target.checked)}
-                    label="🧪 Experimental (Nightly)"
-                    description="Access latest experimental features - results may vary"
+                    checked={comparison}
+                    onChange={(e) => setComparison(e.target.checked)}
+                    label="⚖️ Compare Normal vs Nightly"
+                    description="Run both APIs in parallel to compare results side by side"
                   />
                   
                 </motion.div>
@@ -995,7 +1077,12 @@ export default function Home() {
 
                 {/* Image counter */}
                 <div className="absolute top-4 left-4 z-10 bg-black/70 text-white px-4 py-2 rounded-full text-sm backdrop-blur-sm">
-                  {currentResultIndex + 1} of {resultGallery.length}
+                  <div className="flex items-center gap-2">
+                    <span>{currentResultIndex + 1} of {resultGallery.length}</span>
+                    {resultGallery.length > 1 && (
+                      <span className="text-xs opacity-75">• Use ← → keys</span>
+                    )}
+                  </div>
                 </div>
 
                 {/* Previous button */}
