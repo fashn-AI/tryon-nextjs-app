@@ -4,6 +4,7 @@ import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import Image from 'next/image';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X, RefreshCw, Sparkles, Settings, Zap, UserRound, Shirt, Lightbulb } from 'lucide-react';
+import ReactCompareImage from 'react-compare-image';
 import Banner from './components/Banner';
 import TipsModal from './components/TipsModal';
 import ApiKeyModal from './components/ApiKeyModal';
@@ -44,6 +45,8 @@ const garmentExamples = [
 const MAX_IMAGE_HEIGHT = 2000;
 const JPEG_QUALITY = 0.95;
 
+
+
 export default function Home() {
   // Input states
   const [modelImageFile, setModelImageFile] = useState<File | null>(null);
@@ -79,6 +82,11 @@ export default function Home() {
   // Results modal state
   const [isResultsModalOpen, setIsResultsModalOpen] = useState(false);
   const [currentResultIndex, setCurrentResultIndex] = useState(0);
+  
+  // Comparison modal state
+  const [isComparisonMode, setIsComparisonMode] = useState(false);
+  const [selectedResults, setSelectedResults] = useState<number[]>([]);
+  const [isComparisonModalOpen, setIsComparisonModalOpen] = useState(false);
 
   // API key modal state
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
@@ -176,6 +184,37 @@ export default function Home() {
     }
   };
 
+  // Handle comparison mode
+  const toggleComparisonMode = () => {
+    setIsComparisonMode(!isComparisonMode);
+    setSelectedResults([]);
+  };
+
+  const handleResultSelection = (index: number) => {
+    if (!isComparisonMode) {
+      openResultsModal(index);
+      return;
+    }
+
+    if (selectedResults.includes(index)) {
+      setSelectedResults(selectedResults.filter(i => i !== index));
+    } else if (selectedResults.length < 2) {
+      const newSelection = [...selectedResults, index];
+      setSelectedResults(newSelection);
+      
+      // Auto-open comparison modal when 2 results are selected
+      if (newSelection.length === 2) {
+        setIsComparisonModalOpen(true);
+      }
+    }
+  };
+
+  const closeComparisonModal = () => {
+    setIsComparisonModalOpen(false);
+    setSelectedResults([]);
+    setIsComparisonMode(false);
+  };
+
   // Load example images
   const loadExampleImage = async (
     imageUrl: string,
@@ -218,6 +257,9 @@ export default function Home() {
     setNumSamples(1);
     setNightly(false);
     setComparison(false);
+    setIsComparisonMode(false);
+    setSelectedResults([]);
+    setIsComparisonModalOpen(false);
   };
 
   /**
@@ -965,9 +1007,38 @@ export default function Home() {
             >
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Sparkles className="h-5 w-5 text-gray-600" />
-                    Try-On Results
+                  <CardTitle className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="h-5 w-5 text-gray-600" />
+                      Try-On Results
+                    </div>
+                    {resultGallery.length > 1 && !isLoading && (
+                      <div className="flex items-center gap-2">
+                        {isComparisonMode && (
+                          <span className="text-sm text-gray-500 dark:text-gray-400">
+                            Select 2 results to compare ({selectedResults.length}/2)
+                          </span>
+                        )}
+                        <Button
+                          variant={isComparisonMode ? "primary" : "outline"}
+                          size="sm"
+                          onClick={toggleComparisonMode}
+                          className="flex items-center gap-1"
+                        >
+                          {isComparisonMode ? (
+                            <>
+                              <X className="h-4 w-4" />
+                              Cancel
+                            </>
+                          ) : (
+                            <>
+                              ⚖️
+                              Compare
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    )}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -996,45 +1067,80 @@ export default function Home() {
                         exit={{ opacity: 0 }}
                         className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
                       >
-                        {resultGallery.map((url, index) => (
-                          <motion.div 
-                            key={index}
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ 
-                              opacity: 1, 
-                              scale: 1,
-                              transition: { delay: index * 0.05, duration: 0.2 }
-                            }}
-                            className="relative group cursor-pointer"
-                            onClick={() => openResultsModal(index)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter' || e.key === ' ') {
-                                e.preventDefault();
-                                openResultsModal(index);
-                              }
-                            }}
-                            tabIndex={0}
-                            role="button"
-                            aria-label={`View result ${index + 1} in full screen`}
-                          >
-                            <div className="aspect-[2/3] border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-gray-800">
-                              <Image 
-                                src={url} 
-                                alt={`Result ${index + 1}`} 
-                                className="max-w-full max-h-full object-contain p-2" 
-                                width={300}
-                                height={400}
-                                unoptimized
-                              />
-                            </div>
-                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                              <div className="bg-black/70 text-white py-2 px-4 rounded-full text-sm flex items-center gap-2">
-                                <Zap className="h-4 w-4" />
-                                Click to view full size
+                        {resultGallery.map((url, index) => {
+                          const isSelected = selectedResults.includes(index);
+                          const canSelect = isComparisonMode && (selectedResults.length < 2 || isSelected);
+                          
+                          return (
+                            <motion.div 
+                              key={index}
+                              initial={{ opacity: 0, scale: 0.9 }}
+                              animate={{ 
+                                opacity: 1, 
+                                scale: 1,
+                                transition: { delay: index * 0.05, duration: 0.2 }
+                              }}
+                              className={cn(
+                                "relative group cursor-pointer",
+                                isSelected && "ring-2 ring-blue-500 ring-offset-2",
+                                isComparisonMode && !canSelect && "opacity-50 cursor-not-allowed"
+                              )}
+                              onClick={() => handleResultSelection(index)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                  e.preventDefault();
+                                  handleResultSelection(index);
+                                }
+                              }}
+                              tabIndex={0}
+                              role="button"
+                              aria-label={isComparisonMode ? `${isSelected ? 'Deselect' : 'Select'} result ${index + 1} for comparison` : `View result ${index + 1} in full screen`}
+                            >
+                              <div className="aspect-[2/3] border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-gray-800">
+                                <Image 
+                                  src={url} 
+                                  alt={`Result ${index + 1}`} 
+                                  className="max-w-full max-h-full object-contain p-2" 
+                                  width={300}
+                                  height={400}
+                                  unoptimized
+                                />
                               </div>
-                            </div>
-                          </motion.div>
-                        ))}
+                              
+                              {/* Selection indicator */}
+                              {isComparisonMode && (
+                                <div className="absolute top-2 left-2 z-10">
+                                  <div className={cn(
+                                    "w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs font-bold",
+                                    isSelected ? "bg-blue-500 border-blue-500 text-white" : "bg-white/90 border-gray-400 text-gray-600"
+                                  )}>
+                                    {isSelected ? selectedResults.indexOf(index) + 1 : ""}
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {/* Hover overlay */}
+                              {!isComparisonMode && (
+                                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <div className="bg-black/70 text-white py-2 px-4 rounded-full text-sm flex items-center gap-2">
+                                    <Zap className="h-4 w-4" />
+                                    Click to view full size
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {/* Comparison mode overlay */}
+                              {isComparisonMode && canSelect && (
+                                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <div className="bg-blue-500/90 text-white py-2 px-4 rounded-full text-sm flex items-center gap-2">
+                                    ⚖️
+                                    {isSelected ? 'Deselect' : 'Select for comparison'}
+                                  </div>
+                                </div>
+                              )}
+                            </motion.div>
+                          );
+                        })}
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -1173,6 +1279,72 @@ export default function Home() {
                     ))}
                   </div>
                 )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Comparison Modal */}
+        <AnimatePresence>
+          {isComparisonModalOpen && selectedResults.length === 2 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="fixed inset-0 w-screen h-screen bg-black/95 backdrop-blur-sm z-50 flex items-center justify-center"
+              style={{ 
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                width: '100vw',
+                height: '100vh'
+              }}
+              onClick={closeComparisonModal}
+            >
+              <div className="relative w-full h-full flex items-center justify-center">
+                {/* Close button */}
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={closeComparisonModal}
+                  className="absolute top-4 right-4 z-10 bg-black/70 hover:bg-black/90 text-white rounded-full p-3 backdrop-blur-sm transition-colors cursor-pointer"
+                >
+                  <X className="h-6 w-6" />
+                </motion.button>
+
+                {/* Title */}
+                <div className="absolute top-4 left-4 z-10 bg-black/70 text-white px-4 py-2 rounded-full text-sm backdrop-blur-sm">
+                  <div className="flex items-center gap-2">
+                    <span>⚖️ Compare Results</span>
+                    <span className="text-xs opacity-75">• Drag to reveal</span>
+                  </div>
+                </div>
+
+                                 {/* Comparison container */}
+                 <motion.div
+                   initial={{ opacity: 0, scale: 0.95 }}
+                   animate={{ opacity: 1, scale: 1 }}
+                   exit={{ opacity: 0, scale: 0.95 }}
+                   transition={{ duration: 0.15, ease: "easeOut" }}
+                   className="relative w-full h-full flex items-center justify-center p-4"
+                   onClick={(e) => e.stopPropagation()}
+                 >
+                   <div className="relative w-full max-w-2xl aspect-[2/3] overflow-hidden rounded-lg border border-gray-300 dark:border-gray-600">
+                     <ReactCompareImage
+                       leftImage={resultGallery[selectedResults[0]]}
+                       rightImage={resultGallery[selectedResults[1]]}
+                       leftImageLabel={`Result ${selectedResults[0] + 1}`}
+                       rightImageLabel={`Result ${selectedResults[1] + 1}`}
+                       sliderLineWidth={3}
+                       sliderLineColor="#fff"
+                       handleSize={40}
+                       hover={true}
+                     />
+                   </div>
+                 </motion.div>
               </div>
             </motion.div>
           )}
