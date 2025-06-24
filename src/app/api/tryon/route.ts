@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 
 const FASHN_ENDPOINT_URL = process.env.FASHN_ENDPOINT_URL || "https://api.fashn.ai/v1";
+const FASHN_NIGHTLY_ENDPOINT_URL = process.env.FASHN_NIGHTLY_ENDPOINT_URL || "https://api.fashn.ai/nightly";
 const FASHN_API_KEY = process.env.FASHN_API_KEY;
 
 // Helper to delay execution
@@ -19,6 +20,7 @@ export async function POST(request: Request) {
       seed,
       num_samples,
       api_key, // User-provided API key
+      nightly, // Use nightly experimental endpoint
     } = body;
 
     // Use environment API key if available, otherwise use user-provided key
@@ -52,9 +54,12 @@ export async function POST(request: Request) {
       "Authorization": `Bearer ${apiKey}`,
     };
 
+    // Determine which endpoint to use based on nightly flag
+    const baseUrl = nightly ? FASHN_NIGHTLY_ENDPOINT_URL : FASHN_ENDPOINT_URL;
+    
     // 1. Make initial API request to /run
-    console.log("Sending request to FASHN API /run");
-    const runResponse = await fetch(`${FASHN_ENDPOINT_URL}/run`, {
+    console.log(`Sending request to FASHN API /run${nightly ? ' (nightly)' : ''}`);
+    const runResponse = await fetch(`${baseUrl}/run`, {
       method: "POST",
       headers,
       body: JSON.stringify(apiPayload),
@@ -91,7 +96,7 @@ export async function POST(request: Request) {
 
     while (Date.now() - startTime < maxPollingTime) {
       console.log(`Polling status for ID: ${predId}`);
-      const statusResponse = await fetch(`${FASHN_ENDPOINT_URL}/status/${predId}`, {
+      const statusResponse = await fetch(`${baseUrl}/status/${predId}`, {
         method: "GET",
         headers,
       });

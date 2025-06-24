@@ -29,7 +29,7 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
           />
           <motion.div
             className={cn(
-              "h-4 w-4 shrink-0 rounded border border-gray-300 dark:border-gray-700 ring-offset-white transition-all peer-disabled:cursor-not-allowed peer-disabled:opacity-50 dark:ring-offset-gray-950",
+              "h-4 w-4 shrink-0 rounded border border-gray-300 dark:border-gray-700 ring-offset-white transition-all peer-disabled:cursor-not-allowed peer-disabled:opacity-50 dark:ring-offset-gray-950 cursor-pointer",
               colorStyles[colorScheme],
               "peer-checked:data-[checked]:border-transparent peer-focus-visible:ring-2 peer-focus-visible:ring-offset-2",
               className
@@ -38,6 +38,12 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
             whileTap={{ scale: 0.9 }}
             initial={{ scale: 1 }}
             animate={{ scale: 1 }}
+            onClick={() => {
+              const input = document.getElementById(props.id || id) as HTMLInputElement;
+              if (input && !props.disabled) {
+                input.click();
+              }
+            }}
           >
             {props.checked && (
               <motion.div

@@ -58,6 +58,7 @@ export default function Home() {
   const [mode, setMode] = useState('Balanced');
   const [seed, setSeed] = useState<number>(() => Math.floor(Math.random() * 1000000));
   const [numSamples, setNumSamples] = useState<number>(1);
+  const [nightly, setNightly] = useState(false);
 
   // Output states
   const [resultGallery, setResultGallery] = useState<string[]>([]);
@@ -193,6 +194,7 @@ export default function Home() {
     setMode('Balanced');
     setSeed(Math.floor(Math.random() * 1000000));
     setNumSamples(1);
+    setNightly(false);
   };
 
   /**
@@ -304,6 +306,7 @@ export default function Home() {
         seed: seed,
         num_samples: numSamples,
         api_key: apiKey, // Include user's API key
+        nightly: nightly, // Include nightly parameter
       };
 
       const response = await fetch('/api/tryon', {
@@ -830,6 +833,13 @@ export default function Home() {
                       </motion.button>
                     </div>
                   </div>
+                  
+                  <Checkbox
+                    checked={nightly}
+                    onChange={(e) => setNightly(e.target.checked)}
+                    label="🧪 Experimental (Nightly)"
+                    description="Access latest experimental features - results may vary"
+                  />
                   
                 </motion.div>
                 
