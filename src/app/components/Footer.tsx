@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { BookOpen, ExternalLink, Heart, Github } from 'lucide-react';
 import { FADE_IN_ANIMATION_VARIANTS, STAGGER_ANIMATION_VARIANTS, cn } from '../lib/utils';
@@ -35,8 +35,33 @@ const resources: Resource[] = [
   }
 ];
 
+type BackgroundElement = {
+  width: number;
+  height: number;
+  top: string;
+  left: string;
+  yAnimation: number;
+  duration: number;
+  delay: number;
+};
+
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const [backgroundElements, setBackgroundElements] = useState<BackgroundElement[]>([]);
+
+  useEffect(() => {
+    // Generate random values only on client side to prevent hydration mismatch
+    const elements = [...Array(10)].map(() => ({
+      width: Math.random() * 30 + 10,
+      height: Math.random() * 30 + 10,
+      top: `${Math.random() * 100}%`,
+      left: `${Math.random() * 100}%`,
+      yAnimation: Math.random() * -50 - 30,
+      duration: Math.random() * 8 + 10,
+      delay: Math.random() * 5,
+    }));
+    setBackgroundElements(elements);
+  }, []);
 
   return (
     <motion.footer 
@@ -49,25 +74,25 @@ export default function Footer() {
       <div className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4 sm:p-8 overflow-hidden">
         {/* Animated background elements */}
         <div className="absolute inset-0 overflow-hidden">
-          {[...Array(10)].map((_, i) => (
+          {backgroundElements.map((element, i) => (
             <motion.div
               key={i}
               className="absolute rounded-full bg-white/5"
               style={{
-                width: Math.random() * 30 + 10,
-                height: Math.random() * 30 + 10,
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
+                width: element.width,
+                height: element.height,
+                top: element.top,
+                left: element.left,
               }}
               animate={{
-                y: [0, Math.random() * -50 - 30],
+                y: [0, element.yAnimation],
                 opacity: [0, 0.3, 0],
               }}
               transition={{
-                duration: Math.random() * 8 + 10,
+                duration: element.duration,
                 repeat: Infinity,
                 ease: "linear",
-                delay: Math.random() * 5,
+                delay: element.delay,
               }}
             />
           ))}
