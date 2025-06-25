@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 
 const FASHN_ENDPOINT_URL = process.env.FASHN_ENDPOINT_URL || "https://api.fashn.ai/v1";
-const FASHN_NIGHTLY_ENDPOINT_URL = process.env.FASHN_NIGHTLY_ENDPOINT_URL || "https://api.fashn.ai/nightly";
 const FASHN_API_KEY = process.env.FASHN_API_KEY;
 
 // Helper to delay execution
@@ -20,7 +19,7 @@ export async function POST(request: Request) {
       seed,
       num_samples,
       api_key, // User-provided API key
-      nightly, // Use nightly experimental endpoint
+      model_name, // Model version selection (v1.5, tryon-v1.6, tryon-staging)
     } = body;
 
     // Use environment API key if available, otherwise use user-provided key
@@ -38,7 +37,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing model or garment image" }, { status: 400 });
     }
 
-    const apiPayload = {
+    const inputs = {
       model_image,
       garment_image,
       garment_photo_type: garment_photo_type.toLowerCase(),
@@ -49,16 +48,28 @@ export async function POST(request: Request) {
       num_samples: parseInt(num_samples, 10),
     };
 
+    let apiPayload;
+    if (model_name === 'tryon-v1.5') {
+      // v1.5 uses old flat schema (no model_name) for backwards compatibility
+      apiPayload = inputs;
+      console.log('Using flat schema for v1.5 (backwards compatibility)');
+    } else {
+      // v1.6, staging use new nested schema
+      apiPayload = {
+        model_name: model_name,
+        inputs: inputs
+      };
+      console.log(`Using new schema for model: ${model_name}`);
+    }
+
+    const baseUrl = FASHN_ENDPOINT_URL;
+
     const headers = {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${apiKey}`,
     };
 
-    // Determine which endpoint to use based on nightly flag
-    const baseUrl = nightly ? FASHN_NIGHTLY_ENDPOINT_URL : FASHN_ENDPOINT_URL;
-    
-    // 1. Make initial API request to /run
-    console.log(`Sending request to FASHN API /run${nightly ? ' (nightly)' : ''}`);
+    console.log(`Sending request to FASHN API: ${baseUrl}/run`);
     const runResponse = await fetch(`${baseUrl}/run`, {
       method: "POST",
       headers,
@@ -88,7 +99,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Failed to get prediction ID from FASHN API" }, { status: 500 });
     }
 
-    // 2. Poll the status of the prediction
+    // Poll status
     let statusData;
     const maxPollingTime = 180 * 1000; // 3 minutes in milliseconds
     const pollingInterval = 2 * 1000; // 2 seconds

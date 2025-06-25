@@ -61,8 +61,10 @@ export default function Home() {
   const [mode, setMode] = useState('Balanced');
   const [seed, setSeed] = useState<number>(() => Math.floor(Math.random() * 1000000));
   const [numSamples, setNumSamples] = useState<number>(1);
-  const [nightly, setNightly] = useState(false);
+  const [modelVersion, setModelVersion] = useState('tryon-v1.6');
   const [comparison, setComparison] = useState(false);
+  const [comparisonModel1, setComparisonModel1] = useState('tryon-v1.5');
+  const [comparisonModel2, setComparisonModel2] = useState('tryon-v1.6');
 
   // Output states
   const [resultGallery, setResultGallery] = useState<string[]>([]);
@@ -255,8 +257,10 @@ export default function Home() {
     setMode('Balanced');
     setSeed(Math.floor(Math.random() * 1000000));
     setNumSamples(1);
-    setNightly(false);
+    setModelVersion('tryon-v1.6');
     setComparison(false);
+    setComparisonModel1('tryon-v1.5');
+    setComparisonModel2('tryon-v1.6');
     setIsComparisonMode(false);
     setSelectedResults([]);
     setIsComparisonModalOpen(false);
@@ -361,7 +365,6 @@ export default function Home() {
         garmentImageBase64 = await fileToBase64(garmentImageFile);
       }
 
-      // Create base payload without nightly parameter
       const basePayload = {
         model_image: modelImageBase64,
         garment_image: garmentImageBase64,
@@ -375,44 +378,44 @@ export default function Home() {
       };
 
       if (comparison) {
-        // Run both normal and nightly in parallel for comparison
-        const [normalResponse, nightlyResponse] = await Promise.all([
+        // Run both selected models in parallel for comparison
+        const [model1Response, model2Response] = await Promise.all([
           fetch('/api/tryon', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ...basePayload, nightly: false }),
+            body: JSON.stringify({ ...basePayload, model_name: comparisonModel1 }),
           }),
           fetch('/api/tryon', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ...basePayload, nightly: true }),
+            body: JSON.stringify({ ...basePayload, model_name: comparisonModel2 }),
           })
         ]);
 
-        const [normalData, nightlyData] = await Promise.all([
-          normalResponse.json(),
-          nightlyResponse.json()
+        const [model1Data, model2Data] = await Promise.all([
+          model1Response.json(),
+          model2Response.json()
         ]);
 
         // Check for errors in either response
-        if (!normalResponse.ok) {
-          if (normalData.requiresApiKey) {
+        if (!model1Response.ok) {
+          if (model1Data.requiresApiKey) {
             setIsApiKeyModalOpen(true);
           }
-          throw new Error(`Normal API failed: ${normalData.error || normalResponse.statusText}`);
+          throw new Error(`${comparisonModel1} API failed: ${model1Data.error || model1Response.statusText}`);
         }
-        if (!nightlyResponse.ok) {
-          throw new Error(`Nightly API failed: ${nightlyData.error || nightlyResponse.statusText}`);
+        if (!model2Response.ok) {
+          throw new Error(`${comparisonModel2} API failed: ${model2Data.error || model2Response.statusText}`);
         }
 
         // Combine results from both APIs
-        const normalResults = normalData.output || [];
-        const nightlyResults = nightlyData.output || [];
-        setResultGallery([...normalResults, ...nightlyResults]);
+        const model1Results = model1Data.output || [];
+        const model2Results = model2Data.output || [];
+        setResultGallery([...model1Results, ...model2Results]);
 
       } else {
-        // Single API call (normal behavior)
-        const payload = { ...basePayload, nightly: nightly };
+        // Single API call
+        const payload = { ...basePayload, model_name: modelVersion };
 
         const response = await fetch('/api/tryon', {
           method: 'POST',
@@ -940,30 +943,64 @@ export default function Home() {
                     </div>
                   </div>
                   
-                  <div className="relative group">
-                    <Checkbox
-                      checked={nightly}
-                      onChange={(e) => setNightly(e.target.checked)}
-                      label="🧪 Experimental (Nightly)"
-                      description="Access latest experimental features - results may vary"
-                    />
-                    
-                    {/* Tooltip */}
-                    <div className="absolute left-0 bottom-full mb-2 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200 z-10">
-                      <div className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs rounded-lg px-3 py-2 shadow-lg max-w-xs whitespace-normal">
-                        <div className="font-medium mb-1">When to use Nightly:</div>
-                        <div>Early access to model improvements before public release. We deploy updates rapidly, so nightly and normal often produce identical results.</div>
-                        <div className="absolute top-full left-4 w-2 h-2 bg-gray-900 dark:bg-gray-100 rotate-45 transform -translate-y-1"></div>
-                      </div>
-                    </div>
-                  </div>
+                  <RadioGroup
+                    label="Model Version"
+                    name="modelVersion"
+                    options={[
+                      { label: "v1.6 (Latest)", value: "tryon-v1.6", description: "Recommended production model" },
+                      { label: "v1.5 (Stable)", value: "tryon-v1.5", description: "Original model for backwards compatibility" },
+                      { label: "Staging", value: "tryon-staging", description: "Experimental model, may be slow" }
+                    ]}
+                    value={modelVersion}
+                    onChange={setModelVersion}
+                    variant="card"
+                    layout="vertical"
+                  />
                   
                   <Checkbox
                     checked={comparison}
                     onChange={(e) => setComparison(e.target.checked)}
-                    label="⚖️ Compare Normal vs Nightly"
-                    description="Run both APIs in parallel to compare results side by side"
+                    label="⚖️ Model Comparison"
+                    description="Run two models in parallel to compare results side by side"
                   />
+                  
+                  {comparison && (
+                    <div className="space-y-3 mt-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-600">
+                      <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Select models to compare:
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                            Model 1
+                          </label>
+                          <select
+                            value={comparisonModel1}
+                            onChange={(e) => setComparisonModel1(e.target.value)}
+                            className="w-full px-2 py-1 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-gray-500"
+                          >
+                            <option value="tryon-v1.5">v1.5 (Stable)</option>
+                            <option value="tryon-v1.6">v1.6 (Latest)</option>
+                            <option value="tryon-staging">Staging</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                            Model 2
+                          </label>
+                          <select
+                            value={comparisonModel2}
+                            onChange={(e) => setComparisonModel2(e.target.value)}
+                            className="w-full px-2 py-1 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-gray-500"
+                          >
+                            <option value="tryon-v1.5">v1.5 (Stable)</option>
+                            <option value="tryon-v1.6">v1.6 (Latest)</option>
+                            <option value="tryon-staging">Staging</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   
                 </motion.div>
                 
@@ -1336,8 +1373,8 @@ export default function Home() {
                      <ReactCompareImage
                        leftImage={resultGallery[selectedResults[0]]}
                        rightImage={resultGallery[selectedResults[1]]}
-                       leftImageLabel={`Result ${selectedResults[0] + 1}`}
-                       rightImageLabel={`Result ${selectedResults[1] + 1}`}
+                       leftImageLabel={comparisonModel1.replace('tryon-', '')}
+                       rightImageLabel={comparisonModel2.replace('tryon-', '')}
                        sliderLineWidth={3}
                        sliderLineColor="#fff"
                        handleSize={40}
