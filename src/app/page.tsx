@@ -948,7 +948,7 @@ export default function Home() {
                     name="modelVersion"
                     options={[
                       { label: "v1.6 (Latest)", value: "tryon-v1.6", description: "Recommended production model" },
-                      { label: "v1.5 (Stable)", value: "tryon-v1.5", description: "Original model for backwards compatibility" },
+                      { label: "v1.5", value: "tryon-v1.5", description: "Original model for backwards compatibility" },
                       { label: "Staging", value: "tryon-staging", description: "Experimental model, may be slow" }
                     ]}
                     value={modelVersion}
@@ -993,7 +993,7 @@ export default function Home() {
                             onChange={(e) => setComparisonModel2(e.target.value)}
                             className="w-full px-2 py-1 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-gray-500"
                           >
-                            <option value="tryon-v1.5">v1.5 (Stable)</option>
+                            <option value="tryon-v1.5">v1.5</option>
                             <option value="tryon-v1.6">v1.6 (Latest)</option>
                             <option value="tryon-staging">Staging</option>
                           </select>
