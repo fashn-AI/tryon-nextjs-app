@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
+import React, { useState, ChangeEvent, FormEvent, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X, RefreshCw, Sparkles, Settings, Zap, UserRound, Shirt, Lightbulb } from 'lucide-react';
@@ -110,15 +110,28 @@ export default function Home() {
     }
   }, []);
 
+  // Handle navigating results in modal
+  const navigateResult = useCallback((direction: 'prev' | 'next') => {
+    setCurrentResultIndex(prevIndex => {
+      if (direction === 'prev' && prevIndex > 0) {
+        return prevIndex - 1;
+      }
+      if (direction === 'next' && prevIndex < resultGallery.length - 1) {
+        return prevIndex + 1;
+      }
+      return prevIndex;
+    });
+  }, [resultGallery.length]);
+
   // Keyboard navigation for results modal
   useEffect(() => {
     if (!isResultsModalOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowLeft' && currentResultIndex > 0) {
+      if (e.key === 'ArrowLeft') {
         e.preventDefault();
         navigateResult('prev');
-      } else if (e.key === 'ArrowRight' && currentResultIndex < resultGallery.length - 1) {
+      } else if (e.key === 'ArrowRight') {
         e.preventDefault();
         navigateResult('next');
       } else if (e.key === 'Escape') {
@@ -129,7 +142,7 @@ export default function Home() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isResultsModalOpen, currentResultIndex, resultGallery.length]);
+  }, [isResultsModalOpen, navigateResult]);
 
   // Handle saving API key
   const handleSaveApiKey = (newApiKey: string) => {
@@ -226,15 +239,6 @@ export default function Home() {
   const openResultsModal = (index: number) => {
     setCurrentResultIndex(index);
     setIsResultsModalOpen(true);
-  };
-
-  // Handle navigating results in modal
-  const navigateResult = (direction: 'prev' | 'next') => {
-    if (direction === 'prev' && currentResultIndex > 0) {
-      setCurrentResultIndex(currentResultIndex - 1);
-    } else if (direction === 'next' && currentResultIndex < resultGallery.length - 1) {
-      setCurrentResultIndex(currentResultIndex + 1);
-    }
   };
 
   // Handle comparison mode
@@ -1439,7 +1443,11 @@ export default function Home() {
                       whileTap={{ scale: 0.9 }}
                       onClick={(e) => {
                         e.stopPropagation();
-                        isAnimating ? stopSliderAnimation() : startSliderAnimation();
+                        if (isAnimating) {
+                          stopSliderAnimation();
+                        } else {
+                          startSliderAnimation();
+                        }
                       }}
                       className={`px-3 py-1 rounded text-xs transition-colors cursor-pointer ${
                         isAnimating 
