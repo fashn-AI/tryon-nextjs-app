@@ -4,7 +4,7 @@ import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import Image from 'next/image';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X, RefreshCw, Sparkles, Settings, Zap, UserRound, Shirt, Lightbulb } from 'lucide-react';
-import ReactCompareImage from 'react-compare-image';
+import { ReactCompareSlider, ReactCompareSliderImage, useReactCompareSliderRef } from 'react-compare-slider';
 import Banner from './components/Banner';
 import TipsModal from './components/TipsModal';
 import ApiKeyModal from './components/ApiKeyModal';
@@ -89,6 +89,14 @@ export default function Home() {
   const [isComparisonMode, setIsComparisonMode] = useState(false);
   const [selectedResults, setSelectedResults] = useState<number[]>([]);
   const [isComparisonModalOpen, setIsComparisonModalOpen] = useState(false);
+  
+  // Animation state for comparison slider
+  const [sliderPosition, setSliderPosition] = useState(50); // react-compare-slider uses 0-100
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [animationDirection, setAnimationDirection] = useState<'right' | 'left'>('right');
+  
+  // Ref for programmatic control of the slider
+  const compareSliderRef = useReactCompareSliderRef();
 
   // API key modal state
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
@@ -128,6 +136,50 @@ export default function Home() {
     setApiKey(newApiKey);
     localStorage.setItem('fashn_api_key', newApiKey);
     setIsApiKeyModalOpen(false);
+  };
+
+  // Smooth animation logic using transitions between positions
+  useEffect(() => {
+    let animationActive = true;
+    
+    if (isAnimating && compareSliderRef.current) {
+      const animateSlider = async () => {
+        let step = 0;
+        while (animationActive && isAnimating) {
+          const positions = [85, 25, 50]; // Right, Left, Center
+          const directions: ('right' | 'left')[] = ['right', 'left', 'right'];
+          
+          const currentPos = positions[step % positions.length];
+          const currentDir = directions[step % directions.length];
+          
+                     if (compareSliderRef.current && animationActive) {
+             compareSliderRef.current.setPosition(currentPos);
+             setSliderPosition(currentPos);
+             setAnimationDirection(currentDir);
+             await new Promise(resolve => setTimeout(resolve, 2500)); // Wait 2.5 seconds (1.5s transition + 1s pause)
+           }
+          
+          step++;
+        }
+      };
+      
+      animateSlider();
+    }
+    
+    return () => {
+      animationActive = false;
+    };
+  }, [isAnimating, compareSliderRef]);
+
+  // Start/stop animation functions
+  const startSliderAnimation = () => setIsAnimating(true);
+  const stopSliderAnimation = () => setIsAnimating(false);
+  const resetSliderPosition = () => {
+    setIsAnimating(false);
+    setSliderPosition(50);
+    setAnimationDirection('right');
+    // Reset using ref
+    compareSliderRef.current?.setPosition(50);
   };
 
   // Touch/swipe handlers for model examples
@@ -215,6 +267,12 @@ export default function Home() {
     setIsComparisonModalOpen(false);
     setSelectedResults([]);
     setIsComparisonMode(false);
+    // Reset animation state when closing modal
+    setIsAnimating(false);
+    setSliderPosition(50);
+    setAnimationDirection('right');
+    // Reset using ref
+    compareSliderRef.current?.setPosition(50);
   };
 
   // Load example images
@@ -1352,11 +1410,60 @@ export default function Home() {
                   <X className="h-6 w-6" />
                 </motion.button>
 
-                {/* Title */}
+                {/* Title and Status Info */}
                 <div className="absolute top-4 left-4 z-10 bg-black/70 text-white px-4 py-2 rounded-full text-sm backdrop-blur-sm">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3">
                     <span>⚖️ Compare Results</span>
-                    <span className="text-xs opacity-75">• Drag to reveal</span>
+                    <span className="text-xs opacity-75">• Drag to reveal or use auto</span>
+                    {isAnimating && (
+                      <div className="text-xs opacity-75 flex items-center gap-1">
+                        <span>Moving:</span>
+                        <motion.span
+                          animate={{ opacity: [0.5, 1, 0.5] }}
+                          transition={{ duration: 1, repeat: Infinity }}
+                        >
+                          {animationDirection === 'right' ? '→' : '←'}
+                        </motion.span>
+                        <span className="text-yellow-300">
+                          {Math.round(sliderPosition)}%
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Animation Control Buttons */}
+                <div 
+                  className="absolute bottom-4 left-4 z-10 bg-black/70 text-white px-4 py-2 rounded-full text-sm backdrop-blur-sm"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="flex items-center gap-2">
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        isAnimating ? stopSliderAnimation() : startSliderAnimation();
+                      }}
+                      className={`px-3 py-1 rounded text-xs transition-colors cursor-pointer ${
+                        isAnimating 
+                          ? 'bg-red-500/80 hover:bg-red-500' 
+                          : 'bg-green-500/80 hover:bg-green-500'
+                      }`}
+                    >
+                      {isAnimating ? '⏸️ Pause Auto' : '▶️ Start Auto'}
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        resetSliderPosition();
+                      }}
+                      className="px-3 py-1 bg-blue-500/80 hover:bg-blue-500 rounded text-xs transition-colors cursor-pointer"
+                    >
+                      🔄 Center
+                    </motion.button>
                   </div>
                 </div>
 
@@ -1370,16 +1477,40 @@ export default function Home() {
                    onClick={(e) => e.stopPropagation()}
                  >
                    <div className="relative w-full max-w-2xl aspect-[2/3] overflow-hidden rounded-lg border border-gray-300 dark:border-gray-600">
-                     <ReactCompareImage
-                       leftImage={resultGallery[selectedResults[0]]}
-                       rightImage={resultGallery[selectedResults[1]]}
-                       leftImageLabel={comparisonModel1.replace('tryon-', '')}
-                       rightImageLabel={comparisonModel2.replace('tryon-', '')}
-                       sliderLineWidth={3}
-                       sliderLineColor="#fff"
-                       handleSize={40}
-                       hover={true}
+                     <ReactCompareSlider
+                       ref={compareSliderRef}
+                       itemOne={
+                         <ReactCompareSliderImage 
+                           src={resultGallery[selectedResults[0]]} 
+                           alt={`${comparisonModel1} result`}
+                         />
+                       }
+                       itemTwo={
+                         <ReactCompareSliderImage 
+                           src={resultGallery[selectedResults[1]]} 
+                           alt={`${comparisonModel2} result`}
+                         />
+                       }
+                       position={sliderPosition}
+                       onPositionChange={(position: number) => {
+                         // Only allow manual control when not animating
+                         if (!isAnimating) {
+                           setSliderPosition(position);
+                         }
+                       }}
+                       changePositionOnHover={false}
+                       disabled={isAnimating}
+                       transition="1.5s ease-in-out" // Add smooth transition
+                       style={{ width: '100%', height: '100%' }}
                      />
+                     
+                     {/* Model Labels */}
+                     <div className="absolute top-1/2 left-3 -translate-y-1/2 z-20 bg-black/80 text-white px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm">
+                       {comparisonModel1.replace('tryon-', '')}
+                     </div>
+                     <div className="absolute top-1/2 right-3 -translate-y-1/2 z-20 bg-black/80 text-white px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm">
+                       {comparisonModel2.replace('tryon-', '')}
+                     </div>
                    </div>
                  </motion.div>
               </div>
