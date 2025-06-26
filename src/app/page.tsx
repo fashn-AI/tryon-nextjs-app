@@ -91,11 +91,11 @@ export default function Home() {
   const [isComparisonModalOpen, setIsComparisonModalOpen] = useState(false);
   
   // Animation state for comparison slider
-  const [sliderPosition, setSliderPosition] = useState(50); // react-compare-slider uses 0-100
+  const [sliderPosition, setSliderPosition] = useState(50);
   const [isAnimating, setIsAnimating] = useState(false);
   const [animationDirection, setAnimationDirection] = useState<'right' | 'left'>('right');
   
-  // Ref for programmatic control of the slider
+  // Ref for programmatic control of the comparison slider
   const compareSliderRef = useReactCompareSliderRef();
 
   // API key modal state
@@ -138,7 +138,7 @@ export default function Home() {
     setIsApiKeyModalOpen(false);
   };
 
-  // Smooth animation logic using transitions between positions
+    // Automated comparison slider animation
   useEffect(() => {
     let animationActive = true;
     
@@ -146,18 +146,18 @@ export default function Home() {
       const animateSlider = async () => {
         let step = 0;
         while (animationActive && isAnimating) {
-          const positions = [85, 25, 50]; // Right, Left, Center
+          const positions = [85, 25, 50];
           const directions: ('right' | 'left')[] = ['right', 'left', 'right'];
           
           const currentPos = positions[step % positions.length];
           const currentDir = directions[step % directions.length];
           
-                     if (compareSliderRef.current && animationActive) {
-             compareSliderRef.current.setPosition(currentPos);
-             setSliderPosition(currentPos);
-             setAnimationDirection(currentDir);
-             await new Promise(resolve => setTimeout(resolve, 2500)); // Wait 2.5 seconds (1.5s transition + 1s pause)
-           }
+          if (compareSliderRef.current && animationActive) {
+            compareSliderRef.current.setPosition(currentPos);
+            setSliderPosition(currentPos);
+            setAnimationDirection(currentDir);
+            await new Promise(resolve => setTimeout(resolve, 2500));
+          }
           
           step++;
         }
@@ -171,14 +171,13 @@ export default function Home() {
     };
   }, [isAnimating, compareSliderRef]);
 
-  // Start/stop animation functions
+  // Animation control functions
   const startSliderAnimation = () => setIsAnimating(true);
   const stopSliderAnimation = () => setIsAnimating(false);
   const resetSliderPosition = () => {
     setIsAnimating(false);
     setSliderPosition(50);
     setAnimationDirection('right');
-    // Reset using ref
     compareSliderRef.current?.setPosition(50);
   };
 
@@ -200,7 +199,7 @@ export default function Home() {
     }
   };
 
-  // Handle file input changes
+  // File input change handler
   const handleImageChange = (
     e: ChangeEvent<HTMLInputElement>,
     setImageFile: (file: File | null) => void,
@@ -211,7 +210,7 @@ export default function Home() {
       setImageFile(file);
       setPreview(URL.createObjectURL(file));
       
-      // Clear error if both images will be selected after this change
+      // Clear validation errors when both images are available
       if (setImageFile === setModelImageFile && garmentImageFile) {
         setError(null);
       } else if (setImageFile === setGarmentImageFile && modelImageFile) {
@@ -267,11 +266,9 @@ export default function Home() {
     setIsComparisonModalOpen(false);
     setSelectedResults([]);
     setIsComparisonMode(false);
-    // Reset animation state when closing modal
     setIsAnimating(false);
     setSliderPosition(50);
     setAnimationDirection('right');
-    // Reset using ref
     compareSliderRef.current?.setPosition(50);
   };
 
@@ -289,7 +286,7 @@ export default function Home() {
       setImageFile(file);
       setPreview(URL.createObjectURL(file));
       
-      // Clear error if both images will be selected after this change
+      // Clear validation errors when both images are available
       if (setImageFile === setModelImageFile && garmentImageFile) {
         setError(null);
       } else if (setImageFile === setGarmentImageFile && modelImageFile) {
@@ -408,8 +405,7 @@ export default function Home() {
 
     try {
       // Preprocess images according to FASHN API best practices
-      // We use base64 encoding instead of CDN URLs for simplicity in this demo
-      // app, though FASHN API docs recommend using CDN-hosted images for production
+      // Base64 encoding is used for simplicity, though CDN-hosted images are recommended for production
       let modelImageBase64, garmentImageBase64;
       
       try {
@@ -432,7 +428,7 @@ export default function Home() {
         segmentation_free: segmentationFree,
         seed: seed,
         num_samples: numSamples,
-        api_key: apiKey, // Include user's API key
+        api_key: apiKey,
       };
 
       if (comparison) {
@@ -1493,14 +1489,13 @@ export default function Home() {
                        }
                        position={sliderPosition}
                        onPositionChange={(position: number) => {
-                         // Only allow manual control when not animating
                          if (!isAnimating) {
                            setSliderPosition(position);
                          }
                        }}
                        changePositionOnHover={false}
                        disabled={isAnimating}
-                       transition="1.5s ease-in-out" // Add smooth transition
+                       transition="1.5s ease-in-out"
                        style={{ width: '100%', height: '100%' }}
                      />
                      
