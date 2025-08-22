@@ -11,6 +11,7 @@ const nextConfig: NextConfig = {
       'v3.fal.media', // For example images in documentation
       'custom-icon-badges.demolab.com', // For badges
       'img.shields.io', // For badges
+      'mjc1kvq4a1.ufs.sh', // For external images from Upload Thing
     ],
   },
   experimental: {
