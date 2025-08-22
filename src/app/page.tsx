@@ -30,10 +30,10 @@ const CATEGORY_API_MAPPING: { [key: string]: string } = {
 // Sample images for examples
 const modelExamples = [
   '/models/model-example.png',
-  'https://app.fashn.ai/_next/static/media/studio-woman.79028a0e.png',
-  'https://app.fashn.ai/_next/static/media/street-man.c6590454.png',
-  'https://app.fashn.ai/_next/static/media/plus-woman.9235bac2.png',
-  'https://app.fashn.ai/_next/static/media/studio-man.f2eb8dfb.png'
+  'https://mjc1kvq4a1.ufs.sh/f/7ZFSVc14Zv0C8dvOAdbI21g63JATVpzHqifdbOhcmUeZFvPl',
+  'https://mjc1kvq4a1.ufs.sh/f/7ZFSVc14Zv0Csg1xV5QSBjvaUSEcZtbnN695WHDuFpOqyYmi',
+  'https://mjc1kvq4a1.ufs.sh/f/7ZFSVc14Zv0CHZRDgQFXB9Y7ge5vh286IQ1uZocGnkCqxSOa',
+  'https://mjc1kvq4a1.ufs.sh/f/7ZFSVc14Zv0CAOAqzwJROP5XLHFwxVJrYC3gjzd9SsckvIKo'
 ];
 
 const garmentExamples = [
