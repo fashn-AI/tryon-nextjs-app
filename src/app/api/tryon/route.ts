@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
+import Fashn from 'fashn';
 
-const FASHN_ENDPOINT_URL = process.env.FASHN_ENDPOINT_URL || "https://api.fashn.ai/v1";
+const FASHN_ENDPOINT_URL = process.env.FASHN_ENDPOINT_URL || "https://api.fashn.ai";
 const FASHN_API_KEY = process.env.FASHN_API_KEY;
 
 // Helper to delay execution
@@ -48,84 +49,37 @@ export async function POST(request: Request) {
       num_samples: parseInt(num_samples, 10),
     };
 
-    let apiPayload;
-    if (model_name === 'tryon-v1.5') {
-      // v1.5 uses old flat schema (no model_name) for backwards compatibility
-      apiPayload = inputs;
-      console.log('Using flat schema for v1.5 (backwards compatibility)');
-    } else {
-      // v1.6, staging use new nested schema
-      apiPayload = {
-        model_name: model_name,
-        inputs: inputs
-      };
-      console.log(`Using new schema for model: ${model_name}`);
+    const apiPayload = {
+      model_name: model_name,
+      inputs: inputs
     }
 
-    const baseUrl = FASHN_ENDPOINT_URL;
+    const baseURL = FASHN_ENDPOINT_URL;
+    const client = new Fashn({ apiKey, baseURL });
 
-    const headers = {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`,
-    };
-
-    console.log(`Sending request to FASHN API: ${baseUrl}/run`);
-    const runResponse = await fetch(`${baseUrl}/run`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(apiPayload),
-    });
-
-    if (!runResponse.ok) {
-      const errorData = await runResponse.json().catch(() => ({ detail: "Unknown error during run" }));
-      console.error("FASHN API /run error:", errorData);
-      
-      // Check for authentication errors
-      if (runResponse.status === 401 || runResponse.status === 403) {
-        return NextResponse.json({ 
-          error: "Invalid API key. Please check your FASHN API key and try again.",
-          requiresApiKey: true 
-        }, { status: 401 });
-      }
-      
-      return NextResponse.json({ error: `API run failed: ${errorData.detail || runResponse.statusText}` }, { status: runResponse.status });
-    }
-
-    const runData = await runResponse.json();
-    const predId = runData.id;
+    console.log(`Sending request to FASHN API: ${baseURL}/run`);
+    const runResponse = await client.predictions.run(apiPayload);
+    const predId = runResponse.id;
     console.log(`Prediction ID: ${predId}`);
-
     if (!predId) {
       return NextResponse.json({ error: "Failed to get prediction ID from FASHN API" }, { status: 500 });
     }
 
     // Poll status
-    let statusData;
     const maxPollingTime = 180 * 1000; // 3 minutes in milliseconds
     const pollingInterval = 2 * 1000; // 2 seconds
     const startTime = Date.now();
 
     while (Date.now() - startTime < maxPollingTime) {
       console.log(`Polling status for ID: ${predId}`);
-      const statusResponse = await fetch(`${baseUrl}/status/${predId}`, {
-        method: "GET",
-        headers,
-      });
+      const statusData = await client.predictions.status(predId);
 
-      if (!statusResponse.ok) {
-        const errorData = await statusResponse.json().catch(() => ({ detail: "Unknown error during status poll" }));
-        console.error("FASHN API /status error:", errorData);
-        await delay(pollingInterval);
-        continue;
-      }
-
-      statusData = await statusResponse.json();
       console.log(`Prediction status: ${statusData.status}`);
 
       if (statusData.status === "completed") {
         console.log("Prediction completed.");
         return NextResponse.json({ output: statusData.output });
-      } else if (statusData.status !== "starting" && statusData.status !== "in_queue" && statusData.status !== "processing") {
+      } else if (statusData.status === "failed") {
         console.error(`Prediction failed with id ${predId}: ${JSON.stringify(statusData.error)}`);
         return NextResponse.json({ error: `Prediction failed: ${statusData.error?.message || 'Unknown reason'}` }, { status: 500 });
       }
@@ -136,8 +90,28 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Maximum polling time exceeded." }, { status: 504 }); // Gateway Timeout
 
   } catch (error: Error | unknown) {
-    console.error("Error in /api/tryon:", error);
-    const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
+    if (error instanceof Fashn.APIError) {
+      console.error("FASHN API /run error:", error);
+      
+      // Check for authentication errors
+      if (error.status === 401 || error.status === 403) {
+        return NextResponse.json({ 
+          error: "Invalid API key. Please check your FASHN API key and try again.",
+          requiresApiKey: true 
+        }, { status: 401 });
+      }
+
+      if (error.status === 429) {
+        return NextResponse.json({ 
+          error: "Rate limit exceeded. Please try again later.",
+        }, { status: 429 });
+      }
+      
+      return NextResponse.json({ error: `API run failed: ${error.cause}` }, { status: error.status });
+    } else {
+      console.error("Error in /api/tryon:", error);
+      const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+      return NextResponse.json({ error: errorMessage }, { status: 500 });
+    }
   }
-} 
+}
